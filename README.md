@@ -5,8 +5,7 @@ An approach to automating Scratch Essays with 3D Printers and Custom G-Code.
 ## What is a scratch essay?
 
 Divide cells and study regrowth
-![Cell growth]
-(https://cytosmart.com/sites/default/files/inline-images/wound-healing-assay-fig-1.jpeg)
+![Cell growth](https://cytosmart.com/sites/default/files/inline-images/wound-healing-assay-fig-1.jpeg)
 
 ## Why do we need to automate it?
 
