@@ -1,0 +1,16 @@
+Gcode global:
+-Spitze an äußerer Kante Positionieren(Manuell?)
+-Position auf 00 setzen und Koordinaten abfahren
+-Abfahren jedes wells, positionierung in der Mitte
+-Gcode Scratchen und weiter...
+
+Gcode Scratch:
+-start in mitte 10mm über well
+-absinken bis Spitze in well vertiefung
+-ScratchPattern abfahren
+-Spitze bis 10mm über well fahren, weiter...
+
+Scratch Pattern:
+-über Zellen bis zum start des patterns fahren
+-pattern abfahren, nach jedem Strich absetzen
+-am ende grade nach oben, weiter...

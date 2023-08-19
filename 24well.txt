@@ -1,0 +1,8 @@
+number_short: 4
+number_long: 6
+diameter: 15.5
+depth: 17.3
+distance_well: 3.5
+distance_short: 7.8
+distance_long: 6.0
+height: 187420
