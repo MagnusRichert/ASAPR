@@ -5,4 +5,5 @@ depth: 17.3
 distance_well: 3.5
 distance_short: 7.8
 distance_long: 6.0
+tip_offset: 0.5
 height: 187420
