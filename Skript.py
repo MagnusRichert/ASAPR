@@ -38,7 +38,7 @@ def generate_gcode(data, pattern):
         for length in range (int(data['number_long'])):
 
             #check if well number is on list for not scratching
-            well_number = width * data['number_short'] + length + 1
+            well_number = width * data['number_long'] + length + 1
             if well_number in []:
                 print(f"Skipped well {well_number:.0f}")
                 continue
@@ -84,7 +84,7 @@ def generate_gcode(data, pattern):
 
     #return to start and close
     gcode.writelines("G0 X0 Y0 Z10\n")
-    gcode.writelines("M00 \"Please remove the tip to end print :)\"")
+    gcode.writelines("M00 \"Please remove the tip to end print :)\\n"")
     gcode.writelines("M30\n")
     gcode.close()
     print(f"Succesfully generated {gcode_name}!")
@@ -97,15 +97,16 @@ start_coordinates = "X50 Y50 Z30"
 
 ###MAIN SKRIPT
 if __name__ == '__main__':
+
+    file_path = input('Please enter the filename of your well data and press Enter: ')
+    data = load_well_data(file_path)
+    print(data)
+    pattern = input('Please specify the pattern you want: line, mesh: ')
+    print('Starting G-Code generation...')
+    generate_gcode(data, pattern)
+
     try:
-        file_path = "24well.txt" #input('Please enter the filename of your well data and press Enter: ')
-        data = load_well_data(file_path)
-        print(data)
-        pattern = "mesh" #input('Please specify the pattern you want: line, mesh: ')
-        print('Starting G-Code generation...')
-        generate_gcode(data, pattern)
-
-
+        pass
     except FileNotFoundError:
         print("File not found.")
     #except Exception as e:
