@@ -1,9 +1,7 @@
-number_short: 4
-number_long: 6
+number_x: 4
+number_y: 6
 diameter: 15.5
 depth: 17.3
 distance_well: 3.5
-distance_short: 7.8
-distance_long: 6.0
-tip_offset: 0.5
-height: 187420
+distance_x: 7.8
+distance_y: 6.0
