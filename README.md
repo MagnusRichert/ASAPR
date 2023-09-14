@@ -23,7 +23,7 @@ Here we will discuss how to use this repository for your scratch essay and what 
 ### Bill of Materials
 - 3D-Printer (no auto leveling preferrably)
 - Luer Lock adapter with M6 thread
-- tip for Luer Lock
+- tip for Luer Lock adapter
 - 7mm wrench
 - piece of paper
 
@@ -45,7 +45,7 @@ In developement...
 #### Mount the posiotioning for your wells
 The next step is to mount your positioning guide for the well on the buildplate. It is important that the sides of your guide/well align with the X- and Y-axis. A magnetic printbed is not recommended as it can slip and loose the position.
 If you scratch wells with different sizes it is recommendet to have permanent position guides in the lowest XY-corner and variable guides for the other sides, see picture below.
-![Positioning Guides](pictures/guides.png)
+![Positioning Guides](pictures/guide.png)
 This way you only have to get the x_offset and y_offset once. The offsets are shown in the picture below.
 ![Offset](pictures/offset.png)
 
@@ -55,6 +55,7 @@ Using the "move" function the printer will always display the current position o
 First you have to move the tip to the X and Y edges closest to the home position respectively so that the tip barely touches them. For Y the printhead was moved to 24.8mm in the example picture below.
 ![Offset Y](pictures/offset_y.png)
 To get your offset values for X and Y you still have to add the radius of the tip you used. For example it has a diameter of 0.4mm: offset_y = Y + d/2 = 24.8mm + 0.2mm = 25.0mm
+
 For the Z offset just move the printhead until the tip touches the well, see picture:
 ![Offset Z](pictures/offset_z.png)
 The Z value can directly be used as the offset. When using a different tip you have to adjust the Z offset again. It is possible to just measure the difference in length of the tips and adjust the offset accordingly.
