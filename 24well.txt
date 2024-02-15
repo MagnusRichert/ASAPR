@@ -1,5 +1,5 @@
-number_x: 4
-number_y: 6
+number_x: 6
+number_y: 4
 diameter: 15.5
 depth: 17.3
 distance_well: 3.5
