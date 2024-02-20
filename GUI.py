@@ -24,8 +24,8 @@ class CircleGrid:
         self.cell_height = self.height / self.rows
         self.selected_circles = []
 
-        self.canvas = tk.Canvas(root, width=self.width, height=self.height, bg='white')
-        self.canvas.pack()
+        # set the canvas as given root
+        self.canvas = root
 
         self.draw_grid()
 
@@ -38,6 +38,7 @@ class CircleGrid:
         else:
             self.cell_width = self.cell_height
 
+        #create circles and text
         for row in range(self.rows):
             for col in range(self.columns):
                 x1 = col * self.cell_width
@@ -48,7 +49,7 @@ class CircleGrid:
                 circle_number = int((self.rows-row-1) * self.columns + col + 1)
                 circle_name = chr(65 + row) + str(col + 1)
                 self.canvas.create_oval(x1, y1, x2, y2, tags=f'circle{circle_number}', outline='black')
-                self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=circle_name)
+                self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=circle_name, tags = f'{circle_name}')
 
     def circle_click(self, event):
         col,_ = divmod(event.x, self.cell_height)
@@ -91,7 +92,7 @@ label_tip.place(x=50, y=80)
 
 # Create a validation command
 def validate_float(input):
-    if input == "":  # Allow empty input
+    if input == "" or input == "-":  # Allow empty input and - sign
         return True
     try:
         float(input)
@@ -100,7 +101,7 @@ def validate_float(input):
         return False
 
 validate_input = outer_canvas.register(validate_float)
-validate_int = outer_canvas.register(lambda input: input.isdigit())
+validate_int = outer_canvas.register(lambda input: input.isdigit() or input == "")
 
 
 # Create Input fields for offset
@@ -196,6 +197,7 @@ def load_well_data():
         for line in file:
             key, value = line.strip().split(": ")
             data[key] = float(value)
+    inner_canvas.delete("all")
     well_grid = CircleGrid(inner_canvas, int(data['number_x']), int(data['number_y']))
 
     print("Loaded well file")
@@ -213,8 +215,7 @@ gcode_name_field.place(x=650, y=230)
 
 # Create Button to generate gcode
 def generate_gcode():
-    #try:
-    if True:
+    try:
         print(data)
         # get varaiables from input fields
         gcode_name = gcode_name_field.get()
@@ -321,9 +322,9 @@ def generate_gcode():
         gcode.close()
         print(f"Succesfully generated {gcode_name}!")
         messagebox.showinfo("Generate gcode", f"Succesfully generated {gcode_name}!")
-    #except Exception as e:
-        #print(f"Error while generating gcode: {str(e)}")
-        #messagebox.showerror("Generate gcode", f"Error while generating gcode: {str(e)}")
+    except Exception as e:
+        print(f"Error while generating gcode: {str(e)}")
+        messagebox.showerror("Generate gcode", f"Error while generating gcode: {str(e)}")
     
 generate_gcode_button = tk.Button(outer_canvas, text="Generate G-Code", command=generate_gcode)
 generate_gcode_button.place(x=650, y=255)
