@@ -70,6 +70,7 @@ class CircleGrid:
 # Create the root window
 root = tk.Tk()
 root.geometry("800x500")
+root.title("Scratch me Baby")
 
 # Create the outer canvas
 outer_canvas = tk.Canvas(root, width=800, height=500)
