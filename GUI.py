@@ -276,10 +276,10 @@ def generate_gcode():
 
                 #adds gcode according to pattern
                 if pattern == "Mesh":
-                    if mesh_line_distance*mesh_line_number >= data['diameter'] and mesh_line_number > 1: #check if mesh is possible
+                    if mesh_line_distance*(mesh_line_number-1)+tip_offset*2 >= data['diameter']: #check if mesh is possible
                         print("The mesh is not possible with current settings of line number and distance!")
                         messagebox.showinfo("Pattern", "Mesh not possible with selected line number and distance!")
-                        exit(1)
+                        return
 
                     y_cordinates = [center_y+(i-mesh_line_number/2)*mesh_line_distance+mesh_line_distance/2 for i in range(mesh_line_number)]
                     for y_position in y_cordinates:
@@ -293,10 +293,11 @@ def generate_gcode():
 
                 elif pattern == "Circles":   #check if circles possible
                     circle_inner_radius = float(inner_radius_field.get())
-                    if circle_inner_radius+circle_number*circle_distance >= data['diameter'] and circle_number > 1:
+                    if circle_inner_radius+(circle_number-1)*circle_distance+tip_offset >= data['diameter']/2:
                         print("The cirlces are not possible with current settings of line number and distance!")
                         messagebox.showinfo("Pattern", "Circles not possible with selected line number and distance!")
-                        exit(1)
+                        return
+                    
                     radii = [circle_inner_radius+i*circle_distance for i in range(circle_number)]
                     for radius in radii:
                         gcode.writelines(f"G0 X{center_x-radius:.2f}\n")
