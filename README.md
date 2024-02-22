@@ -39,9 +39,9 @@ The amount of resistance should be the same for each corner. You can also level 
 The actual distance between insert and bed is not important it just has to be consistant.
 
 #### Autolevel the printbed
-If you want to use autoleveling, you first have to delete any old mesh and create a new one for your printbed and save it. You should find the necessary actions somewhere in the printer setting.
+If you want to use autoleveling, you first have to delete any old mesh and create a new one for your printbed and save it. You should find the necessary actions somewhere in the printer settings.
 
-#### Mount the posiotioning for your wells
+#### Mount the positioning for your wells
 The next step is to mount your positioning guide for the well on the buildplate. It is important that the sides of your guide/well align with the X- and Y-axis. A magnetic printbed is not recommended as it can slip and loose the position.
 If you scratch wells with different sizes it is recommendet to have permanent position guides in the lowest XY-corner and variable guides for the other sides, see picture below.
 ![Positioning Guides](pictures/guide.png)
@@ -62,7 +62,7 @@ The Z value can directly be used as the offset. When using a different tip you h
 
 
 ### Skript usage
-After measuring all required offsets and distances you are ready to use the skript. If you python installed and added to your PATH variables during installation you can just double click the GUI.py
+After measuring all required offsets and distances you are ready to use the skript. If you have python installed and added to your PATH variables during installation you can just double click the GUI.py
 
 If not, you have to enter one of the three commands in a powershell window with the same folder:
 
