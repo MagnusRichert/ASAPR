@@ -4,6 +4,7 @@ from tkinter import messagebox
 ### FUNCTIONS AND VARIABLES###
 data = {}
 well_grid = None
+move_height = 5 #height that the scratcher moves above the cells to travel between scratches
 
 def line_through_x(center_x, diameter, tip_offset, y_offset = 0):
     """Calculates the start and end points of a line through a circle in x direction, a y_offset<radius can be provided to shorten the line"""
@@ -214,7 +215,7 @@ gcode_name_field = tk.Entry(outer_canvas, width=20)
 gcode_name_field.insert(0, "scratch.gcode")  # default value
 gcode_name_field.place(x=650, y=230)
 
-# Create Button to generate gcode
+# Function to generate gcode
 def generate_gcode():
     try:
         print(data)
@@ -242,13 +243,13 @@ def generate_gcode():
         gcode.writelines("G21\n")   #set to mm
         gcode.writelines("G28\n")   #home printhead
         gcode.writelines(f"G0 X{offset_x:.2f} Y{offset_y:.2f} Z{offset_z:.2f}\n")   #move to offset location
-        gcode.writelines("G92 X0 Y0 Z0\n") #set current position as home
+        #gcode.writelines("G92 X0 Y0 Z0\n") #set current position as home
         gcode.writelines(f"F{speed_move:.0f}\n\n")  #set movement speed to XXX units/min i guess
         if auto_leveling:
             gcode.writelines("M420 S1\n")
 
         #move nozzle to insert tip
-        gcode.writelines(f"G0 Z30\n")
+        gcode.writelines(f"G0 Z{offset_z+30:.2f}\n")
         gcode.writelines("M00 \"Please insert tip to start scratching :)\"\n\n")
 
 
@@ -265,14 +266,14 @@ def generate_gcode():
                     continue
 
                 #calculate center points for well
-                center_x = data['distance_x'] + number_x * (data['diameter'] + data['distance_well']) + data['diameter'] / 2
-                center_y = data['distance_y'] + number_y * (data['diameter'] + data['distance_well']) + data['diameter'] / 2
-                depth = data['depth']
+                center_x = data['distance_x'] + number_x * (data['diameter'] + data['distance_well']) + data['diameter'] / 2 + offset_x
+                center_y = data['distance_y'] + number_y * (data['diameter'] + data['distance_well']) + data['diameter'] / 2 + offset_y
+                depth = offset_z - data['depth']
 
                 #move above center of well and into it
                 gcode.writelines(f";GCODE for well number {well_number}, Name: {well_name}\n")
-                gcode.writelines(f"G0 X{center_x:.2f} Y{center_y:.2f} Z10\n")
-                gcode.writelines(f"G0 Z{-depth/2:.2f}\n")
+                gcode.writelines(f"G0 X{center_x:.2f} Y{center_y:.2f} Z{offset_z+move_height:.2f}\n")
+                gcode.writelines(f"G0 Z{depth+move_height:.2f}\n")
 
                 #adds gcode according to pattern
                 if pattern == "Mesh":
@@ -285,11 +286,11 @@ def generate_gcode():
                     for y_position in y_cordinates:
                         start_x, end_x = line_through_x(center_x, data['diameter'], tip_offset, y_offset=center_y-y_position)
                         gcode.writelines(f"G0 X{start_x:.2f} Y{y_position:.2f}\n")
-                        gcode.writelines(f"G0 Z{-depth:.2f}\n")
+                        gcode.writelines(f"G0 Z{depth:.2f}\n")
                         gcode.writelines(f"G0 X{end_x:.2f} F{speed_scratch:.0f}\n")
                         if double_scratch:
                             gcode.writelines(f"G0 X{start_x:.2f}\n")
-                        gcode.writelines(f"G0 Z{-depth/2:.2f} F{speed_move:.0f}\n")
+                        gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
                 elif pattern == "Circles":   #check if circles possible
                     circle_inner_radius = float(inner_radius_field.get())
@@ -301,11 +302,11 @@ def generate_gcode():
                     radii = [circle_inner_radius+i*circle_distance for i in range(circle_number)]
                     for radius in radii:
                         gcode.writelines(f"G0 X{center_x-radius:.2f}\n")
-                        gcode.writelines(f"G0 Z{-depth:.2f}\n")
+                        gcode.writelines(f"G0 Z{depth:.2f}\n")
                         gcode.writelines(f"G2 I{radius:.2f} F{speed_scratch:.0f}\n")
                         if double_scratch:
                             gcode.writelines(f"G3 I{radius:.2f}\n")
-                        gcode.writelines(f"G0 Z{-depth/2:.2f} F{speed_move:.0f}\n")
+                        gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
 
 
@@ -315,7 +316,7 @@ def generate_gcode():
                     exit(1)
 
                 #move above well to go to next one
-                gcode.writelines(f"G0 X{center_x:.2f} Y{center_y:.2f} Z10\n\n")
+                gcode.writelines(f"G0 X{center_x:.2f} Y{center_y:.2f} Z{offset_z+move_height:.2f}\n\n")
 
         #return to start and close
         gcode.writelines("G0 X0 Y0 Z30\n")
@@ -327,7 +328,8 @@ def generate_gcode():
     except Exception as e:
         print(f"Error while generating gcode: {str(e)}")
         messagebox.showerror("Generate gcode", f"Error while generating gcode: {str(e)}")
-    
+
+# Create a button to generate the gcode	    
 generate_gcode_button = tk.Button(outer_canvas, text="Generate G-Code", command=generate_gcode)
 generate_gcode_button.place(x=650, y=255)
 
