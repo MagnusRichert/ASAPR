@@ -86,16 +86,29 @@ The mesh requires only the number of lines and the distance between the lines. T
 #### Movement settings
 Next to the patterns you can enter the movement speed of the printhead during moving and scratching in mm/s. Be aware that there are limitations to these speeds in the printer settings, mainly noticeable for the z-speed. There is also a tickbox for double scratching each line/circle. Autoleveling also has to be enabled with a tickbox here.
 
+#### Cleaning
+If you want to clean the tip before/after scratching a well plate, you can place one or more cleaning containers and specify their coordinates in a "clean.txt" file. An example of the file content is provided below. The cleaning will draw circles with "Number" amount of cirlces, "Depth" and "Radius" inside the cleaning container. The depth is relative to the "Z" coordinate. The "/" marks the end of the data for one container. You can add as many of these sections as you like.
+~~~bash
+X: 150
+Y: 120
+Z: 30
+Radius: 4
+Depth: 10
+Number: 20
+/
+~~~
+When the "Pause Before Clean" checkbox is ticked the tip will wait 1 cm over the specified XYZ coordinates. This makes it easy to position your cleaning container without exactly measuring the coordinates.
+
 #### Load well setting
 On the right side of the GUI you have to provide the well data. As the wells are mostly standardized we are reading the well data from a *.txt file, as it is easy to share, modify and reuse. An example of such a file is included in the repository as "24well.txt".
 
 #### Select wells to scratch
-After loading the well file, the layout should be plotted in the central area of the GUI. By clicking a well it turns red and will be excluded from scratching. The well in the bottom left corner represents the well closest to the coordinate origin, wich is the home position of your printer.
+After loading the well file, the layout should be plotted in the central area of the GUI. By clicking a well it turns red and will be excluded from scratching. The well in the bottom left corner represents the well closest to the coordinate origin, wich is the home position of your printer. It is usually the bottom left corner of the printbed as well
 
 #### Generate G-Code
 The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter.
 
 ### Running the G-Code
-Before running the G-Code on your machine be sure to have the bed leveled or correctly prepared for the autoleveling option. The guides and the well should be in place by now. Also remove the scratching tip, as the printer has to be homed before scratching (otherwise it would drive the tip onto the print bed). After starting the print the "M00" G-Code command will stop the printer before scratching to insert the tip. After inserting the tip just continue the print, usually by pressing the knob.
+Before running the G-Code on your machine be sure to have the bed leveled or correctly prepared for the autoleveling option. The guides and the well should be in place by now. Also remove the scratching tip, as the printer has to be homed before scratching. Otherwise it would drive the tip into the print bed. After starting the print the "M00" G-Code command will stop the printer before scratching to insert the tip. After inserting the tip just continue the print, usually by pressing the knob.
 
-After scratching remove the tip again and end the print.
+After scratching the remove the tip again and end the print.
