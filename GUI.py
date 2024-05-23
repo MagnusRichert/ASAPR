@@ -386,7 +386,7 @@ def generate_gcode():
             gcode.writelines(generate_cleaning_program())
 
         #return to start and close
-        gcode.writelines("G0 X0 Y0 Z30\n")
+        gcode.writelines(f"G0 X{offset_x:.2f} Y{offset_y:.2f} Z{offset_z+30:.2f}\n")
         gcode.writelines("M0 \"Please remove the tip to end print :)\"\n")
         gcode.writelines("M30\n")
         gcode.close()
