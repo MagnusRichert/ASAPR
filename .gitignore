@@ -7,3 +7,5 @@ test.py
 *.bat
 dist
 build
+*.svg
+vector_test.py

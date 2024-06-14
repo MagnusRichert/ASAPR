@@ -1,11 +1,18 @@
 import tkinter as tk
 from tkinter import messagebox
+import svgpathtools
+import random
+import math
+from typing import List, Tuple
 
 ### FUNCTIONS AND VARIABLES###
 well_data = {}
 well_grid = None
 move_height = 5 #height that the scratcher moves above the cells to travel between scratches
 clean_speed = 60
+# Define types for welzl's algorithm
+Point = Tuple[float, float]
+Disk = Tuple[Point, float]
 
 def line_through_x(center_x, diameter, tip_offset, y_offset = 0):
     """Calculates the start and end points of a line through a circle in x direction, a y_offset<radius can be provided to shorten the line"""
@@ -69,6 +76,74 @@ class CircleGrid:
     def get_selected_circles(self):
         return self.selected_circles
 
+# Functions for welzl's algorithm
+def dist(p1: Point, p2: Point) -> float:
+    """Calculate the Euclidean distance between two points."""
+    return math.sqrt((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2)
+def circle_from_two_points(p1: Point, p2: Point) -> Disk:
+    """Return the minimal disk that passes through two points."""
+    center = ((p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2)
+    radius = dist(p1, p2) / 2
+    return center, radius
+def circle_from_three_points(p1: Point, p2: Point, p3: Point) -> Disk:
+    """Return the minimal disk that passes through three points."""
+    ax, ay = p1
+    bx, by = p2
+    cx, cy = p3
+    d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
+    if d == 0:
+        raise ValueError("Points are collinear")
+    ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
+    uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
+    center = (ux, uy)
+    radius = dist(center, p1)
+    return center, radius
+def trivial(R: List[Point]) -> Disk:
+    """Return the minimal disk that passes through points in R."""
+    if len(R) == 0:
+        return (0, 0), 0
+    elif len(R) == 1:
+        return R[0], 0
+    elif len(R) == 2:
+        return circle_from_two_points(R[0], R[1])
+    elif len(R) == 3:
+        return circle_from_three_points(R[0], R[1], R[2])
+    else:
+        raise ValueError("R can contain at most 3 points")
+def is_in_disk(p: Point, d: Disk) -> bool:
+    """Check if point p is inside or on the boundary of disk d."""
+    center, radius = d
+    return dist(p, center) <= radius
+def welzl(P: List[Point], R: List[Point] = []) -> Disk:
+    """Welzl's algorithm to find the minimal disk enclosing P with R on the boundary."""
+    if len(P) == 0 or len(R) == 3:
+        return trivial(R)
+
+    p = random.choice(P)
+    P.remove(p)
+
+    D = welzl(P, R)
+    
+    if is_in_disk(p, D):
+        P.append(p)
+        return D
+
+    R.append(p)
+    D = welzl(P, R)
+    R.remove(p)
+    P.append(p)
+    
+    return D
+def perform_welzl(svg_data):
+    """Perform Welzl algorithm on svg_data and return center and radius of disk"""
+    points = []
+    for path in svg_data:
+        for segment in path:
+            start = segment.start
+            end = segment.end
+            points.append((start.real, start.imag))
+            points.append((end.real, end.imag))
+    return welzl(points)
 # Create the root window
 root = tk.Tk()
 root.geometry("800x500")
@@ -94,17 +169,24 @@ label_z.place(x=50, y=55)
 label_tip.place(x=50, y=80)
 
 # Create a validation command
-def validate_float(input):
+def validate_float(input, min_value=None, max_value=None):
     if input == "" or input == "-":  # Allow empty input and - sign
         return True
     try:
-        float(input)
+        value = float(input)
+        # Check if the value is within the desired range
+        if min_value is not None and value < min_value:
+            return False
+        if max_value is not None and value > max_value:
+            return False
         return True
     except ValueError:
         return False
 
-validate_input = outer_canvas.register(validate_float)
+# Register the validation command with the canvas
+validate_input = outer_canvas.register(lambda input: validate_float(input, min_value=-99999999, max_value=99999999))
 validate_int = outer_canvas.register(lambda input: input.isdigit() or input == "")
+validate_scale = outer_canvas.register(lambda input: validate_float(input, min_value=0, max_value=1))
 
 
 # Create Input fields for offset
@@ -135,28 +217,45 @@ def update_labels(*args):
         label_distance.config(text="Line Distance")
         label_inner_radius.place_forget()  # Hide the label
         inner_radius_field.place_forget()  # Hide the input field
+        svg_file_field.place_forget()   # Hide the input field
+        svg_scale_field.place_forget()  # Hide the input field
     elif selected_pattern == "Circles":
         label_number.config(text="Circle Number")
         label_distance.config(text="Circle Distance")
         label_inner_radius.config(text="Inner Radius")
         label_inner_radius.place(x=290, y=55)  # Show the label
         inner_radius_field.place(x=380, y=55)  # Show the input field
+        svg_file_field.place_forget()   # Hide the input field
+        svg_scale_field.place_forget()  # Hide the input field
+    elif selected_pattern == "SVG":
+        label_number.config(text="SVG File")
+        label_distance.config(text="SVG Scale")
+        label_inner_radius.place_forget()
+        inner_radius_field.place_forget()
+        svg_file_field.place(x=380, y=5)    # Show the input field
+        svg_scale_field.place(x=380, y=30)  # Show the input field
         
 # Create a dropdown menu for the pattern selection
 pattern_value = tk.StringVar(outer_canvas)
 pattern_value.set("Mesh")  # default value
 pattern_value.trace_add("write", update_labels)  # Call update_labels whenever pattern changes
-pattern_dropdown = tk.OptionMenu(outer_canvas, pattern_value, "Mesh", "Circles")
+pattern_dropdown = tk.OptionMenu(outer_canvas, pattern_value, "Mesh", "Circles", "SVG")
 pattern_dropdown.place(x=200, y=30)
 
 # Create input fields for the pattern parameters
 number_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_int, '%P'))
 distance_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_input, '%P'))
 inner_radius_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_input, '%P'))
+svg_file_field = tk.Entry(outer_canvas, width=10)
+svg_scale_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_scale, '%P'))
 number_field.place(x=380, y=5)
 distance_field.place(x=380, y=30)
 inner_radius_field.place(x=380, y=55)
 inner_radius_field.place_forget()  # Hide the input field
+svg_file_field.place(x=380, y=5)
+svg_file_field.place_forget()   # Hide the input field
+svg_scale_field.place(x=380, y=30)
+svg_scale_field.place_forget()  # Hide the input field
 
 # Create Speed input labels
 label_speed_move = tk.Label(outer_canvas, text="Travel Speed")
@@ -287,15 +386,26 @@ def generate_gcode():
         offset_z = float(offset_z_field.get())
         tip_offset = float(tip_offset_field.get())
         pattern = pattern_value.get()
-        mesh_line_number = int(number_field.get())
-        mesh_line_distance = float(distance_field.get())
-        circle_number = int(number_field.get())
-        circle_distance = float(distance_field.get())
+        if pattern != "SVG":
+            mesh_line_number = int(number_field.get())
+            mesh_line_distance = float(distance_field.get())
+            circle_number = int(number_field.get())
+            circle_distance = float(distance_field.get())
+        else:
+            svg_path = svg_file_field.get()
+            svg_scale = float(svg_scale_field.get())
+            #Load svg path as well and prepare for transposal
+            svg_data, _ = svgpathtools.svg2paths(svg_path)
+            svg_center, svg_radius = perform_welzl(svg_data)
         speed_move = float(speed_move_field.get())
         speed_scratch = float(speed_scratch_field.get())
         double_scratch = double_scratch_state.get()
         auto_leveling = auto_leveling_state.get()
-        skipped_wells = well_grid.get_selected_circles()
+        try:
+            skipped_wells = well_grid.get_selected_circles()
+        except:
+            messagebox.showerror("Generate gcode", "Please load well file first!")
+            return
 
         # open gcode file
         gcode = open(f"{gcode_name}", 'w')
@@ -338,11 +448,12 @@ def generate_gcode():
                 gcode.writelines(f"G0 X{center_x:.2f} Y{center_y:.2f} Z{offset_z+move_height:.2f}\n")
                 gcode.writelines(f"G0 Z{depth+move_height:.2f}\n")
 
+                previous_end = None #Store the end of the previous path for SVG
                 #adds gcode according to pattern
                 if pattern == "Mesh":
                     if mesh_line_distance*(mesh_line_number-1)+tip_offset*2 >= well_data['diameter']: #check if mesh is possible
                         print("The mesh is not possible with current settings of line number and distance!")
-                        messagebox.showinfo("Pattern", "Mesh not possible with selected line number and distance!")
+                        messagebox.showerror("Pattern", "Mesh not possible with selected line number and distance!")
                         return
 
                     y_cordinates = [center_y+(i-mesh_line_number/2)*mesh_line_distance+mesh_line_distance/2 for i in range(mesh_line_number)]
@@ -359,7 +470,7 @@ def generate_gcode():
                     circle_inner_radius = float(inner_radius_field.get())
                     if circle_inner_radius+(circle_number-1)*circle_distance+tip_offset >= well_data['diameter']/2:
                         print("The cirlces are not possible with current settings of line number and distance!")
-                        messagebox.showinfo("Pattern", "Circles not possible with selected line number and distance!")
+                        messagebox.showerror("Pattern", "Circles not possible with selected line number and distance!")
                         return
                     
                     radii = [circle_inner_radius+i*circle_distance for i in range(circle_number)]
@@ -371,11 +482,25 @@ def generate_gcode():
                             gcode.writelines(f"G3 I{radius:.2f}\n")
                         gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
+                elif pattern == "SVG":
+                    print(svg_path)
+                    print(svg_scale)
+                    for path in svg_data:
+                        for segment in path:
+                            start = segment.start
+                            end = segment.end
+                            # When next path starts at end of same path no raise of tip and move to start needed
+                            if previous_end != (start.real, start.imag):
+                                gcode.writelines(f"G0 Z{move_height+depth:.2f}")
+                                gcode.writelines(f"G0 X{(((start.real) - svg_center[0]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_x:.2f} Y{(((start.imag) - svg_center[1]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_y:.2f}\n")
+                                gcode.writelines(f"G0 Z{depth:.2f}\n")
+                            gcode.writelines(f"G0 X{(((end.real) - svg_center[0]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_x:.2f} Y{(((end.imag) - svg_center[1]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_y:.2f}\n")
+                            previous_end = (end.real, end.imag)
 
-
+                # This case should not happen tbh
                 else: 
                     print("Your specified pattern does not exist")
-                    messagebox.showinfo("Pattern", f"Pattern {pattern} doesn't exist!")
+                    messagebox.showerror("Pattern", f"Pattern {pattern} doesn't exist!")
                     exit(1)
 
                 #move above well to go to next one
@@ -391,6 +516,7 @@ def generate_gcode():
         gcode.writelines("M30\n")
         gcode.close()
         print(f"Succesfully generated {gcode_name}!")
+        messagebox.showinfo("Generate gcode", f"Succesfully generated {gcode_name}!")
     except FileNotFoundError as e:
         print(f"Error: File not found - {str(e)}")
         messagebox.showerror("Generate gcode", f"Error: File not found - {str(e)}")
