@@ -1,18 +1,24 @@
 import tkinter as tk
 from tkinter import messagebox
 import svgpathtools
+from svgpathtools import CubicBezier, QuadraticBezier, Arc, Line
 import random
 import math
 from typing import List, Tuple
+import sys
 
 ### FUNCTIONS AND VARIABLES###
 well_data = {}
 well_grid = None
 move_height = 5 #height that the scratcher moves above the cells to travel between scratches
 clean_speed = 60
+resolution = 20 #number of points to sample from svg path
+path_accuracy = 0.01 #if start and endpoint of a line are closer than this, they are considered the same point
 # Define types for welzl's algorithm
 Point = Tuple[float, float]
 Disk = Tuple[Point, float]
+# Increase recursion limit
+sys.setrecursionlimit(10**5)
 
 def line_through_x(center_x, diameter, tip_offset, y_offset = 0):
     """Calculates the start and end points of a line through a circle in x direction, a y_offset<radius can be provided to shorten the line"""
@@ -92,7 +98,15 @@ def circle_from_three_points(p1: Point, p2: Point, p3: Point) -> Disk:
     cx, cy = p3
     d = 2 * (ax * (by - cy) + bx * (cy - ay) + cx * (ay - by))
     if d == 0:
-        raise ValueError("Points are collinear")
+        d1 = dist(p1, p2)
+        d2 = dist(p2, p3)
+        d3 = dist(p1, p3)
+        if d1 >= d2 and d1 >= d3:
+            return circle_from_two_points(p1, p2)
+        elif d2 >= d1 and d2 >= d3:
+            return circle_from_two_points(p2, p3)
+        else:
+            return circle_from_two_points(p1, p3)
     ux = ((ax * ax + ay * ay) * (by - cy) + (bx * bx + by * by) * (cy - ay) + (cx * cx + cy * cy) * (ay - by)) / d
     uy = ((ax * ax + ay * ay) * (cx - bx) + (bx * bx + by * by) * (ax - cx) + (cx * cx + cy * cy) * (bx - ax)) / d
     center = (ux, uy)
@@ -134,16 +148,40 @@ def welzl(P: List[Point], R: List[Point] = []) -> Disk:
     P.append(p)
     
     return D
-def perform_welzl(svg_data):
+def perform_welzl(svg_lines):
     """Perform Welzl algorithm on svg_data and return center and radius of disk"""
     points = []
-    for path in svg_data:
-        for segment in path:
-            start = segment.start
-            end = segment.end
+    for line in svg_lines:
+            start = line.start
+            end = line.end
             points.append((start.real, start.imag))
             points.append((end.real, end.imag))
     return welzl(points)
+# Functions for SVG to lines
+def sample_path(path, num_points=20):
+    """
+    Sample a path into line segments.
+    """
+    points = [path.point(i / num_points) for i in range(num_points + 1)]
+    lines = [Line(points[i], points[i + 1]) for i in range(num_points)]
+    return lines
+def approximate_svg_with_lines(svg_file, num_points=20):
+    """
+    Convert all paths in an SVG file into sets of line segments.
+    """
+    paths, _ = svgpathtools.svg2paths(svg_file)
+    line_segments = []
+
+    for path in paths:
+        for segment in path:
+            if isinstance(segment, Line):
+                line_segments.append(segment)
+            elif isinstance(segment, (CubicBezier, QuadraticBezier, Arc)):
+                lines = sample_path(segment, num_points)
+                line_segments.extend(lines)
+
+    return line_segments
+
 # Create the root window
 root = tk.Tk()
 root.geometry("800x500")
@@ -395,8 +433,8 @@ def generate_gcode():
             svg_path = svg_file_field.get()
             svg_scale = float(svg_scale_field.get())
             #Load svg path as well and prepare for transposal
-            svg_data, _ = svgpathtools.svg2paths(svg_path)
-            svg_center, svg_radius = perform_welzl(svg_data)
+            svg_lines = approximate_svg_with_lines(svg_path, num_points=resolution)
+            svg_center, svg_radius = perform_welzl(svg_lines)
         speed_move = float(speed_move_field.get())
         speed_scratch = float(speed_scratch_field.get())
         double_scratch = double_scratch_state.get()
@@ -448,7 +486,7 @@ def generate_gcode():
                 gcode.writelines(f"G0 X{center_x:.2f} Y{center_y:.2f} Z{offset_z+move_height:.2f}\n")
                 gcode.writelines(f"G0 Z{depth+move_height:.2f}\n")
 
-                previous_end = None #Store the end of the previous path for SVG
+                previous_end = (-10**10, -10**10) #Store the end of the previous path for SVG
                 #adds gcode according to pattern
                 if pattern == "Mesh":
                     if mesh_line_distance*(mesh_line_number-1)+tip_offset*2 >= well_data['diameter']: #check if mesh is possible
@@ -483,19 +521,16 @@ def generate_gcode():
                         gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
                 elif pattern == "SVG":
-                    print(svg_path)
-                    print(svg_scale)
-                    for path in svg_data:
-                        for segment in path:
-                            start = segment.start
-                            end = segment.end
-                            # When next path starts at end of same path no raise of tip and move to start needed
-                            if previous_end != (start.real, start.imag):
-                                gcode.writelines(f"G0 Z{move_height+depth:.2f}")
-                                gcode.writelines(f"G0 X{(((start.real) - svg_center[0]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_x:.2f} Y{(((start.imag) - svg_center[1]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_y:.2f}\n")
-                                gcode.writelines(f"G0 Z{depth:.2f}\n")
-                            gcode.writelines(f"G0 X{(((end.real) - svg_center[0]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_x:.2f} Y{(((end.imag) - svg_center[1]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_y:.2f}\n")
-                            previous_end = (end.real, end.imag)
+                    for line in svg_lines:
+                        start = line.start
+                        end = line.end
+                        # When next path starts at end of same path no raise of tip and move to start needed
+                        if dist((start.real, start.imag), previous_end) > path_accuracy:
+                            gcode.writelines(f"G0 Z{move_height+depth:.2f}")
+                            gcode.writelines(f"G0 X{(((start.real) - svg_center[0]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_x:.2f} Y{(((start.imag) - svg_center[1]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_y:.2f}\n")
+                            gcode.writelines(f"G0 Z{depth:.2f}\n")
+                        gcode.writelines(f"G0 X{(((end.real) - svg_center[0]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_x:.2f} Y{(((end.imag) - svg_center[1]) / (svg_radius*2)) * (svg_scale * (well_data['diameter'] - tip_offset * 2)) + center_y:.2f}\n")
+                        previous_end = (end.real, end.imag)
 
                 # This case should not happen tbh
                 else: 
