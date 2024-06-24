@@ -12,9 +12,10 @@ offset_x_default = 33.95
 offset_y_default = -3.95
 offset_z_default = 54
 tip_offset_default = 1
-number_default = 1
-distance_default = 1
-inner_radius_default = 1
+number_default = ""
+distance_default = ""
+rect_scratch_default = False
+inner_radius_default = ""
 svg_file_default = "lab.svg"
 svg_scale_default = 1
 speed_move_default = 60
@@ -50,6 +51,14 @@ def line_through_x(center_x, diameter, tip_offset, y_offset = 0):
     end_x = center_x + offset_length
 
     return start_x, end_x
+def line_through_y(center_y, diameter, tip_offset, x_offset = 0):
+    """Calculates the start and end points of a line through a circle in y direction, an x_offset<radius can be provided to shorten the line"""
+    radius = diameter / 2.0
+    offset_length = ((radius-tip_offset)**2-x_offset**2)**0.5
+    start_y = center_y - offset_length
+    end_y = center_y + offset_length
+
+    return start_y, end_y
 
 class CircleGrid:
     def __init__(self, root, columns, rows):
@@ -277,6 +286,8 @@ label_number = tk.Label(outer_canvas, text="Line Number")
 label_number.place(x=290, y=5)
 label_distance = tk.Label(outer_canvas, text="Line Distance")
 label_distance.place(x=290, y=30)
+label_rect_scratch = tk.Label(outer_canvas, text="Repeat with 90° flip")
+label_rect_scratch.place(x=290, y=55)
 label_inner_radius = tk.Label(outer_canvas, text="Inner Radius")
 label_inner_radius.place(x=290, y=55)
 label_inner_radius.place_forget()  # Hide the label
@@ -290,12 +301,15 @@ def update_labels(*args):
         inner_radius_field.place_forget()  # Hide the input field
         svg_file_field.place_forget()   # Hide the input field
         svg_scale_field.place_forget()  # Hide the input field
+        label_rect_scratch.place(x=290, y=55)  # Show the label
+        rect_scratch_checkbox.place(x=425, y=55)  # Show the checkbox
     elif selected_pattern == "Circles":
         label_number.config(text="Circle Number")
         label_distance.config(text="Circle Distance")
         label_inner_radius.config(text="Inner Radius")
         label_inner_radius.place(x=290, y=55)  # Show the label
         inner_radius_field.place(x=380, y=55)  # Show the input field
+        label_rect_scratch.place_forget()  # Hide the label
         svg_file_field.place_forget()   # Hide the input field
         svg_scale_field.place_forget()  # Hide the input field
     elif selected_pattern == "SVG":
@@ -303,6 +317,8 @@ def update_labels(*args):
         label_distance.config(text="SVG Scale")
         label_inner_radius.place_forget()
         inner_radius_field.place_forget()
+        label_rect_scratch.place_forget()  # Hide the label
+        rect_scratch_checkbox.place_forget()  # Hide the checkbox
         svg_file_field.place(x=380, y=5)    # Show the input field
         svg_scale_field.place(x=380, y=30)  # Show the input field
         
@@ -316,11 +332,14 @@ pattern_dropdown.place(x=200, y=30)
 # Create input fields for the pattern parameters
 number_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_int, '%P'))
 distance_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_input, '%P'))
+rect_scratch_state = tk.BooleanVar()
+rect_scratch_checkbox = tk.Checkbutton(outer_canvas, var=rect_scratch_state)
 inner_radius_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_input, '%P'))
 svg_file_field = tk.Entry(outer_canvas, width=10)
 svg_scale_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_scale, '%P'))
 number_field.place(x=380, y=5)
 distance_field.place(x=380, y=30)
+rect_scratch_checkbox.place(x=425, y=55)
 inner_radius_field.place(x=380, y=55)
 inner_radius_field.place_forget()  # Hide the input field
 svg_file_field.place(x=380, y=5)
@@ -329,6 +348,7 @@ svg_scale_field.place(x=380, y=30)
 svg_scale_field.place_forget()  # Hide the input field
 number_field.insert(0, number_default)
 distance_field.insert(0, distance_default)
+rect_scratch_state.set(rect_scratch_default)
 inner_radius_field.insert(0, inner_radius_default)
 svg_file_field.insert(0, svg_file_default)
 svg_scale_field.insert(0, svg_scale_default)
@@ -465,12 +485,14 @@ def generate_gcode():
         offset_z = float(offset_z_field.get())
         tip_offset = float(tip_offset_field.get())
         pattern = pattern_value.get()
-        if pattern != "SVG":
+        if pattern == "Mesh":
             mesh_line_number = int(number_field.get())
             mesh_line_distance = float(distance_field.get())
+            rect_scratch = rect_scratch_state.get()
+        elif pattern == "Circles":
             circle_number = int(number_field.get())
             circle_distance = float(distance_field.get())
-        else:
+        elif pattern == "SVG":
             svg_path = svg_file_field.get()
             svg_scale = float(svg_scale_field.get())
             #Load svg path as well and prepare for transposal
@@ -543,6 +565,16 @@ def generate_gcode():
                         if double_scratch:
                             gcode.writelines(f"G0 X{start_x:.2f}\n")
                         gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
+                    if rect_scratch:
+                        x_coordinates = [center_x+(i-mesh_line_number/2)*mesh_line_distance+mesh_line_distance/2 for i in range(mesh_line_number)]
+                        for x_position in x_coordinates:
+                            start_y, end_y = line_through_y(center_y, well_data['diameter'], tip_offset, x_offset=center_x-x_position)
+                            gcode.writelines(f"G0 X{x_position:.2f} Y{start_y:.2f}\n")
+                            gcode.writelines(f"G0 Z{depth:.2f}\n")
+                            gcode.writelines(f"G0 Y{end_y:.2f} F{speed_scratch:.0f}\n")
+                            if double_scratch:
+                                gcode.writelines(f"G0 Y{start_y:.2f}\n")
+                            gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
                 elif pattern == "Circles":   #check if circles possible
                     circle_inner_radius = float(inner_radius_field.get())
