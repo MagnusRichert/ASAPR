@@ -7,12 +7,35 @@ from typing import List, Tuple
 import sys
 
 ### FUNCTIONS AND VARIABLES###
+# Default values
+offset_x_default = 33.95
+offset_y_default = -3.95
+offset_z_default = 54
+tip_offset_default = 1
+number_default = 1
+distance_default = 1
+inner_radius_default = 1
+svg_file_default = "lab.svg"
+svg_scale_default = 1
+speed_move_default = 60
+speed_scratch_default = 30
+auto_leveling_default = False
+double_scratch_default = False
+clean_file_default = "clean.txt"
+clean_before_default = False
+clean_after_default = False
+pause_before_clean_default = False
+well_file_default = "24well.txt"
+gcode_name_default = "scratch.gcode"
+
+# Global Variables and advanced configuration parameters
 well_data = {}
 well_grid = None
 move_height = 5 #height that the scratcher moves above the cells to travel between scratches
 clean_speed = 60
 resolution = 20 #number of points to sample from svg path
 path_accuracy = 0.01 #if start and endpoint of a line are closer than this, they are considered the same point
+
 # Define types for welzl's algorithm
 Point = Tuple[float, float]
 Disk = Tuple[Point, float]
@@ -242,6 +265,10 @@ offset_x_field.place(x=120, y=5)
 offset_y_field.place(x=120, y=30)
 offset_z_field.place(x=120, y=55)
 tip_offset_field.place(x=120, y=80)
+offset_x_field.insert(0, offset_x_default)
+offset_y_field.insert(0, offset_y_default)
+offset_z_field.insert(0, offset_z_default)
+tip_offset_field.insert(0, tip_offset_default)
 
 # Create a label for the pattern selection
 label_pattern = tk.Label(outer_canvas, text="Pattern")
@@ -300,6 +327,12 @@ svg_file_field.place(x=380, y=5)
 svg_file_field.place_forget()   # Hide the input field
 svg_scale_field.place(x=380, y=30)
 svg_scale_field.place_forget()  # Hide the input field
+number_field.insert(0, number_default)
+distance_field.insert(0, distance_default)
+inner_radius_field.insert(0, inner_radius_default)
+svg_file_field.insert(0, svg_file_default)
+svg_scale_field.insert(0, svg_scale_default)
+
 
 # Create Speed input labels
 label_speed_move = tk.Label(outer_canvas, text="Travel Speed")
@@ -312,16 +345,18 @@ speed_move_field = tk.Entry(outer_canvas, width=10, validate="key", validatecomm
 speed_scratch_field = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_input, '%P'))
 speed_move_field.place(x=550, y=5)
 speed_scratch_field.place(x=550, y=30)
+speed_move_field.insert(0, speed_move_default)
+speed_scratch_field.insert(0, speed_scratch_default)
 
 # Create a bool checkbox for double scratching
 double_scratch_state = tk.BooleanVar()
-double_scratch_state.set(False)  # default value
+double_scratch_state.set(double_scratch_default)  # default value
 double_scratch_checkbox = tk.Checkbutton(outer_canvas, text="Double Scratch", var=double_scratch_state)
 double_scratch_checkbox.place(x=470, y=55)
 
 # Create a bool checkbox for auto leveling
 auto_leveling_state = tk.BooleanVar()
-auto_leveling_state.set(False)  # default value
+auto_leveling_state.set(auto_leveling_default)  # default value
 auto_leveling_checkbox = tk.Checkbutton(outer_canvas, text="Auto Leveling", var=auto_leveling_state)
 auto_leveling_checkbox.place(x=470, y=80)
 
@@ -331,10 +366,10 @@ label_well_file.place(x=650, y=140)
 
 # Create input field for well file path
 well_file_field = tk.Entry(outer_canvas, width=20)
-well_file_field.insert(0, "24well.txt")  # default value
+well_file_field.insert(0, well_file_default)  # default value
 well_file_field.place(x=650, y=165)
 
-#Create Button to load well file
+# Create Button to load well file
 def load_well_data():
     """Loads the well data from a *.txt file"""
     try:
@@ -400,22 +435,22 @@ def generate_cleaning_program():
 label_clean_file = tk.Label(outer_canvas, text ="Clean File Path")
 label_clean_file.place(x=650, y=5)
 clean_file_field = tk.Entry(outer_canvas, width=20)
-clean_file_field.insert(0, "clean.txt")
+clean_file_field.insert(0, clean_file_default)
 clean_file_field.place(x=650, y=35)
 
 # Create bool checkboxes for cleaning options
 clean_before_state = tk.BooleanVar()
-clean_before_state.set(False)  # default value
+clean_before_state.set(clean_before_default)  # default value
 clean_before_checkbox = tk.Checkbutton(outer_canvas, text="Clean Before", var=clean_before_state)
 clean_before_checkbox.place(x=650, y=60)
 
 clean_after_state = tk.BooleanVar()
-clean_after_state.set(False)  # default value
+clean_after_state.set(clean_after_default)  # default value
 clean_after_checkbox = tk.Checkbutton(outer_canvas, text="Clean After", var=clean_after_state)
 clean_after_checkbox.place(x=650, y=85)
 
 pause_before_clean_state = tk.BooleanVar()
-pause_before_clean_state.set(False)  # default value
+pause_before_clean_state.set(pause_before_clean_default)  # default value
 pause_before_clean_checkbox = tk.Checkbutton(outer_canvas, text="Pause Before Clean", var=pause_before_clean_state)
 pause_before_clean_checkbox.place(x=650, y=110)
 
