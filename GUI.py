@@ -21,7 +21,7 @@ svg_scale_default = 1
 speed_move_default = 60
 speed_scratch_default = 30
 auto_leveling_default = False
-double_scratch_default = False
+multi_scratch_default = 1
 clean_file_default = "clean.txt"
 clean_before_default = False
 clean_after_default = False
@@ -368,11 +368,12 @@ speed_scratch_field.place(x=550, y=30)
 speed_move_field.insert(0, speed_move_default)
 speed_scratch_field.insert(0, speed_scratch_default)
 
-# Create a bool checkbox for double scratching
-double_scratch_state = tk.BooleanVar()
-double_scratch_state.set(double_scratch_default)  # default value
-double_scratch_checkbox = tk.Checkbutton(outer_canvas, text="Double Scratch", var=double_scratch_state)
-double_scratch_checkbox.place(x=470, y=55)
+# Create Input field for scratching multiple times
+label_multi_scratch = tk.Label(outer_canvas, text="Scratch Cycles")
+label_multi_scratch.place(x=470, y=55)
+multi_scratch_field  = tk.Entry(outer_canvas, width=10, validate="key", validatecommand=(validate_int, '%P'))
+multi_scratch_field.place(x=550, y=55)
+multi_scratch_field.insert(0, multi_scratch_default)
 
 # Create a bool checkbox for auto leveling
 auto_leveling_state = tk.BooleanVar()
@@ -500,7 +501,7 @@ def generate_gcode():
             svg_center, svg_radius = perform_welzl(svg_lines)
         speed_move = float(speed_move_field.get())
         speed_scratch = float(speed_scratch_field.get())
-        double_scratch = double_scratch_state.get()
+        multi_scratch = int(multi_scratch_field.get())
         auto_leveling = auto_leveling_state.get()
         try:
             skipped_wells = well_grid.get_selected_circles()
@@ -562,8 +563,11 @@ def generate_gcode():
                         gcode.writelines(f"G0 X{start_x:.2f} Y{y_position:.2f}\n")
                         gcode.writelines(f"G0 Z{depth:.2f}\n")
                         gcode.writelines(f"G0 X{end_x:.2f} F{speed_scratch:.0f}\n")
-                        if double_scratch:
-                            gcode.writelines(f"G0 X{start_x:.2f}\n")
+                        for ii in range(multi_scratch-1):
+                            if ii % 2 == 0:
+                                gcode.writelines(f"G0 X{start_x:.2f}\n")
+                            else:
+                                gcode.writelines(f"G0 X{end_x:.2f}\n")
                         gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
                     if rect_scratch:
                         x_coordinates = [center_x+(i-mesh_line_number/2)*mesh_line_distance+mesh_line_distance/2 for i in range(mesh_line_number)]
@@ -572,8 +576,11 @@ def generate_gcode():
                             gcode.writelines(f"G0 X{x_position:.2f} Y{start_y:.2f}\n")
                             gcode.writelines(f"G0 Z{depth:.2f}\n")
                             gcode.writelines(f"G0 Y{end_y:.2f} F{speed_scratch:.0f}\n")
-                            if double_scratch:
-                                gcode.writelines(f"G0 Y{start_y:.2f}\n")
+                            for ii in range(multi_scratch-1):
+                                if ii % 2 == 0:
+                                    gcode.writelines(f"G0 Y{start_y:.2f}\n")
+                                else:
+                                    gcode.writelines(f"G0 Y{end_y:.2f}\n")
                             gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
                 elif pattern == "Circles":   #check if circles possible
@@ -588,24 +595,24 @@ def generate_gcode():
                         gcode.writelines(f"G0 X{center_x-radius:.2f}\n")
                         gcode.writelines(f"G0 Z{depth:.2f}\n")
                         gcode.writelines(f"G2 I{radius:.2f} F{speed_scratch:.0f}\n")
-                        if double_scratch:
-                            gcode.writelines(f"G3 I{radius:.2f}\n")
+                        for _ in range(multi_scratch-1):
+                            gcode.writelines(f"G2 I{radius:.2f}\n")
                         gcode.writelines(f"G0 Z{depth+move_height:.2f} F{speed_move:.0f}\n")
 
                 elif pattern == "SVG":
-                    previous_end = (-10**10, -10**10) # Set initial end outside of coordinate range
-                    for line in svg_lines:
-                        start = calculate_scaled_xy(line.start, svg_center, svg_radius, svg_scale, tip_offset, center_x, center_y)
-                        end = calculate_scaled_xy(line.end, svg_center, svg_radius, svg_scale, tip_offset, center_x, center_y)
-
-                        # When next path starts at end of same path no raise of tip and move to start needed
-                        if dist(start, previous_end) > path_accuracy:
-                            gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
-                            gcode.writelines(f"G0 X{start[0]:.2f} Y{start[1]:.2f}\n")
-                            gcode.writelines(f"G0 Z{depth:.2f}\n")
-                            gcode.write(f"G0 F{speed_scratch:.0f}\n")
-                        gcode.writelines(f"G0 X{end[0]:.2f} Y{end[1]:.2f}\n")
-                        previous_end = end
+                    for _ in range(multi_scratch):
+                        previous_end = (-10**10, -10**10) # Set initial end outside of coordinate range
+                        for line in svg_lines:
+                            start = calculate_scaled_xy(line.start, svg_center, svg_radius, svg_scale, tip_offset, center_x, center_y)
+                            end = calculate_scaled_xy(line.end, svg_center, svg_radius, svg_scale, tip_offset, center_x, center_y)
+                            # When next path starts at end of same path no raise of tip and move to start needed
+                            if dist(start, previous_end) > path_accuracy:
+                                gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
+                                gcode.writelines(f"G0 X{start[0]:.2f} Y{start[1]:.2f}\n")
+                                gcode.writelines(f"G0 Z{depth:.2f}\n")
+                                gcode.write(f"G0 F{speed_scratch:.0f}\n")
+                            gcode.writelines(f"G0 X{end[0]:.2f} Y{end[1]:.2f}\n")
+                            previous_end = end  
 
                 # This case should not happen tbh
                 else: 
