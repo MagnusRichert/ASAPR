@@ -18,8 +18,8 @@ rect_scratch_default = False
 inner_radius_default = ""
 svg_file_default = "lab.svg"
 svg_scale_default = 1
-speed_move_default = 60
-speed_scratch_default = 30
+speed_move_default = 300
+speed_scratch_default = 300
 auto_leveling_default = False
 multi_scratch_default = 1
 clean_file_default = "clean.txt"
@@ -248,7 +248,7 @@ def calculate_scaled_xy(point, svg_center, svg_radius, svg_scale, tip_offset, ce
 # Create the root window
 root = tk.Tk()
 root.geometry("800x500")
-root.title("Scratch me Baby")
+root.title("ASAPR - Advanced Scratch Assay Plotting Robot")
 
 # Create the outer canvas
 outer_canvas = tk.Canvas(root, width=800, height=500)
