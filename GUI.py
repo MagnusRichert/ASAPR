@@ -40,7 +40,7 @@ path_accuracy = 0.01 #if start and endpoint of a line are closer than this, they
 # Define types for welzl's algorithm
 Point = Tuple[float, float]
 Disk = Tuple[Point, float]
-# Increase recursion limit
+# Increase recursion limit, needed for complex SVGs as welzl's algorithm is recursive
 sys.setrecursionlimit(10**5)
 
 def line_through_x(center_x, diameter, tip_offset, y_offset = 0):
@@ -69,6 +69,7 @@ class CircleGrid:
         self.cell_width = self.width / self.columns
         self.cell_height = self.height / self.rows
         self.selected_circles = []
+        self.click_coords = (None, None)
 
         # set the canvas as given root
         self.canvas = root
@@ -76,6 +77,7 @@ class CircleGrid:
         self.draw_grid()
 
         self.canvas.bind('<Button-1>', self.circle_click)
+        self.canvas.bind('<ButtonRelease-1>', self.circle_release)
 
     def draw_grid(self):
         #check how big the circles can be
@@ -98,17 +100,40 @@ class CircleGrid:
                 self.canvas.create_text((x1 + x2) // 2, (y1 + y2) // 2, text=circle_name, tags = f'{circle_name}')
 
     def circle_click(self, event):
+        #Check if click was inside grid
+        if event.x < 0 or event.x > (self.cell_width * self.columns) or event.y < 0 or event.y > (self.cell_height * self.rows):
+            self.click_coords = (None, None)
+            return
         col,_ = divmod(event.x, self.cell_height)
         row,_ = divmod(event.y, self.cell_width)
-        circle_number = int((self.rows-row-1) * self.columns + col + 1)
-        item = self.canvas.find_withtag(f'circle{circle_number}')
+        self.click_coords = (int(col), int(row))
 
-        if circle_number in self.selected_circles:
-            self.selected_circles.remove(circle_number)
-            self.canvas.itemconfig(item, fill='')
-        else:
-            self.selected_circles.append(circle_number)
-            self.canvas.itemconfig(item, fill='red')
+    def circle_release(self, event):
+        #Check if release was inside grid:
+        if event.x < 0 or event.x > (self.cell_width * self.columns) or event.y < 0 or event.y > (self.cell_height * self.rows):
+            self.click_coords = (None, None)
+            return
+
+        col,_ = divmod(event.x, self.cell_height)
+        row,_ = divmod(event.y, self.cell_width)
+
+        # Check if the click was inside the circle grid
+        if self.click_coords[0] != None:
+            cols = (self.click_coords[0], int(col))
+            rows = (self.click_coords[1], int(row))
+            # Iterate through the selected circles and change their color
+            for current_col in range(min(cols), max(cols)+1):
+                for current_row in range(min(rows), max(rows)+1):
+                    circle_number = int((self.rows-current_row-1) * self.columns + current_col + 1)
+                    item = self.canvas.find_withtag(f'circle{circle_number}')
+                    if circle_number in self.selected_circles:
+                        self.selected_circles.remove(circle_number)
+                        self.canvas.itemconfig(item, fill='')
+                    else:
+                        self.selected_circles.append(circle_number)
+                        self.canvas.itemconfig(item, fill='red')
+
+        self.click_coords = (None, None)
 
     def get_selected_circles(self):
         return self.selected_circles
