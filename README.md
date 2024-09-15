@@ -8,23 +8,16 @@ Here we will discuss how to use this repository for your scratch essay and what 
 
 ### Bill of Materials
 
-- 3D-Printer (preferrably with autoleveling sensor)
-- 7mm wrench
-- Luer Lock adapter with M6 thread
-- tip for Luer Lock adapter
+The used Materials including a short discription of each component can be found above in the BOM.xlsx file
 
 ### Preparation of Printer
 
 In this chapter all necessary steps to prepare the printer are discussed.
 
-#### Replace the nozzle
-
-The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the Luer Lock adapter that will be used to hold the tips.
-
 #### Level the printbed (Not needed with autoleveling)
 
 To level the printbed first home the printer. Then disable the motors so you can freely slide the printhead in the XY-plane.
-Now slide a sheet of paper between your adapter in the printhead and and your printbed. Visit every corner respectively and tighten/release the screws until you feel a bit of resistance.
+Now slide a sheet of paper between your nozzle in the printhead and and your printbed. Visit every corner respectively and tighten/release the screws until you feel a bit of resistance.
 The amount of resistance should be the same for each corner. You can also level the bed by eye so that the distance between the adapter and the printbed is the same for each corner.
 The actual distance between insert and bed is not important it just has to be consistant.
 
@@ -87,7 +80,7 @@ In the top left of the GUI you have to enter your measured offsets in mm. The ti
 
 #### Choose pattern
 
-Right next to the offsets you can choose between between the patterns: mesh (mutiple lines), circles and svg grapics.
+Right next to the offsets you can choose between the patterns: mesh (mutiple lines), circles and svg grapics.
 ![Patterns](pictures/pattern.png)
 
 ##### Mesh
@@ -129,13 +122,27 @@ When the "Pause Before Clean" checkbox is ticked the tip will wait 1 cm over the
 
 On the right side of the GUI you have to provide the well data. As the wells are mostly standardized we are reading the well data from a *.txt file, as it is easy to share, modify and reuse. An example of such a file is included in the repository as "24well.txt".
 
+In general the file contains seven values that completely describe the wells.
+
+e.g 24well.txt
+
+number_x: 6          # number of wells in x Direction
+number_y: 4          # number of wells in y Direction
+diameter: 15.5       # diameter of each well
+depth: 17.3          # depth of each well
+distance_well: 3.5   # distamce between each well
+distance_x: 7.8      # distance from the outer well to the wall in x Direction
+distance_y: 6.0      # distance from the outer well to the wall in y Direction
+
+In case of uncertainties, there is also an image that shows these required values above.
+
 #### Select wells to scratch
 
 After loading the well file, the layout should be plotted in the central area of the GUI. By clicking a well it turns red and will be excluded from scratching. Dragging your clicked mouse and releasing it will also select/deselect all wells underneath. The well in the bottom left corner represents the well closest to the coordinate origin, wich is the home position of your printer. It is usually the bottom left corner of the printbed as well.
 
 #### Generate G-Code
 
-The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter.
+The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter. In the future there might be the option to send the generated G-Code right from the GUI over W-Lan, until then you need to save the G-Code on a SD-Card and plug into the 3d-printer.
 
 ### Running the G-Code
 
