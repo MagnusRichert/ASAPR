@@ -22,7 +22,7 @@ This chapter covers all the essential steps to prepare the printer. If you don't
 
 #### Replace the nozzle
 
-The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter M6 thread that will be used to hold the tips.
+The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips.
 
 #### Level the printbed (Not needed with autoleveling)
 
@@ -156,7 +156,7 @@ After loading the well file, the layout will be plotted in the central area of t
 
 #### Generate G-Code
 
-The final step is to enter the name of your *.gcode file and generate the G-Code. BEFORE running it on the 3D printer, be sure to read the next chapter for important instructions.
+The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter for important instructions. In the future there might be the option to send the generated G-Code right from the GUI over W-Lan, until then you need to save the G-Code on a SD-Card and plug into the 3d-printer.
 
 ### Running the G-Code
 
