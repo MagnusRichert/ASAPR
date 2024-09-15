@@ -1,6 +1,6 @@
 # ASAPR - Advanced Scratch Assay Plotting Robot
 
-This repository contains the code to execute in vitro cell analysis via scratch assays as done in the preprint "The use of 3D-printers opens a new world in performing 2D migration analyses - ASAPR"
+This repository contains the code to execute in vitro cell analysis via scratch assays as done in the preprint "The use of 3D-printers opens a new world in performing 2D migration analyses - ASAPR". We greatly appreciate any feedback, contributions, or other input you may have!
 
 ## How to use this repository
 
@@ -8,60 +8,78 @@ Here we will discuss how to use this repository for your scratch essay and what 
 
 ### Bill of Materials
 
-- 3D-Printer (preferrably with autoleveling sensor)
+- 3D-Printer that supports M0 command (preferrably with autoleveling sensor)
+- Frame to hold your well plate
 - 7mm wrench
-- Luer Lock adapter with M6 thread
-- tip for Luer Lock adapter
+- Adapter from M6 thread to tip
+- Spring loaded pipette tip
+
+These are the general materials you will need. The specific components used in the preprint are detailed in the BOM.xlsx file.
 
 ### Preparation of Printer
 
-In this chapter all necessary steps to prepare the printer are discussed.
+This chapter covers all the essential steps to prepare the printer. If you don't have access to a second printer for printing the frame, it's recommended to use the printer intended for scratching to print it. Be aware that whenever you home the printer, the tip should be removed to avoid it being driven into the build plate, which could cause damage!
 
 #### Replace the nozzle
 
-The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the Luer Lock adapter that will be used to hold the tips.
+The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter M6 thread that will be used to hold the tips.
 
 #### Level the printbed (Not needed with autoleveling)
 
-To level the printbed first home the printer. Then disable the motors so you can freely slide the printhead in the XY-plane.
-Now slide a sheet of paper between your adapter in the printhead and and your printbed. Visit every corner respectively and tighten/release the screws until you feel a bit of resistance.
-The amount of resistance should be the same for each corner. You can also level the bed by eye so that the distance between the adapter and the printbed is the same for each corner.
-The actual distance between insert and bed is not important it just has to be consistant.
+To level the print bed, start by homing the printer, then disable the motors to allow free movement of the printhead in the XY-plane. Slide a sheet of paper between the adapter in the printhead and the print bed. Visit each corner and adjust the screws by tightening or loosening them until you feel slight resistance when moving the paper. Ensure the resistance is consistent across all corners. Alternatively, you can level the bed visually, making sure the distance between the adapter and the print bed is uniform at each corner. The exact distance isn't crucial, as the Z-offset will be set later.
 
 #### Autolevel the printbed
 
-If you want to use autoleveling, you first have to delete any old mesh and create a new one for your printbed and save it. You should find the necessary actions in the printer settings. There are many online tutorials that describe this process in detail.
+If you want to use auto-leveling, you must first delete any old mesh, then create and save a new one for your print bed. The necessary actions can be found in the printer settings. For detailed guidance, there are many online tutorials available that explain this process step by step.
 
 #### Mount the positioning for your wells
 
-The next step is to mount your positioning guide for the well on the buildplate. It is important that the sides of your guide/well align with the X- and Y-axis. A magnetic printbed is not recommended as it can slip and loose the position.
-If you scratch wells with different sizes it is recommendet to have permanent position guides in the lowest XY-corner and variable guides for the other sides, see picture below.
+The next step is to mount your positioning guide for the well on the build plate. It's important to ensure the sides of the guide or well align with the X and Y axes. A magnetic print bed is not recommended, as it may slip and lose its position. If you're working with wells of different sizes, it's recommended to use permanent position guides in the lowest XY corner and variable guides for the other sides (see the picture below).
+
 ![Guides](https://private-user-images.githubusercontent.com/90255355/366444479-c9b48ecf-ef6a-4154-91b4-a6085f6e785b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTIsIm5iZiI6MTcyNjA2MTQ1MiwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDQ0NzktYzliNDhlY2YtZWY2YS00MTU0LTkxYjQtYTYwODVmNmU3ODViLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1MlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTUxMjcwZDYzMDkwY2NmYjFhM2VlOTViNjk1MGE0OWZiNjI0NzYwNTNkMTNlYTkzMzQ1Zjk5NDc4Y2ZiYjAxODAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.w_yw0Ts_Tw3wBWX2hOzc8HQRbEjvpmOefd3-S50YJ5I)
 
-This way you only have to determine the x_offset and y_offset once. The offsets are shown in the picture below.
+This setup allows you to determine the x_offset and y_offset only once. The offsets are shown in the picture below.
+
 ![Offsets](https://private-user-images.githubusercontent.com/90255355/366444674-d6d47c4c-fe29-49a8-9c9d-e03ccb57e0a9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDQ2NzQtZDZkNDdjNGMtZmUyOS00OWE4LTljOWQtZTAzY2NiNTdlMGE5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU4Yjk3Yzk4MzhjNjMxNGI3NjYyMmZkOWU0YWRiMmU0NzZlMTI2NTdiMGZlN2RjM2VlNmE1YWUyYTAyZDRlMDcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.uleY0lAAZIpg1pic4BeYjsM3lOS_p29jfc6rElTdRWU)
 
-The positioning guide used in the preprint can be found in this repository as well. It is possible to print it with the same printer that will later be used for scratching.
+The positioning guide used in the preprint can also be found in this repository. It can be printed using the same printer that will be used for scratching.
 
 #### Measure offsets
 
-There are two approaches on how to determine the offsets. The first one uses the "move" function of the printer itself and can be applied to all printers. The second one  is measuring the offset from the coordinate origin.
+There are two approaches to determining the offsets. The first method uses the printer's built-in "move" function and can be applied to any printer. The second method involves manually measuring the offset from the coordinate origin.
 
 ##### Using the printer
 
-To measure the offsets you have to home your printer and put the well on the buildplate. Then use the "move" function of your printer to bring the z-axis high enough that you can insert a tip.
-Using the "move" function the printer will always display the current position of the axis you are moving. This value is the offset we need.
-First you have to move the tip to the X and Y edges closest to the home position respectively so that the tip barely touches them. For Y the printhead was moved to 24.8mm in the example picture below.
-![Offset Y](pictures/offset_y.png)
-To get your offset values for X and Y you still have to add the radius of the tip you used. For example it has a diameter of 0.4mm: offset_y = Y + d/2 = 24.8mm + 0.2mm = 25.0mm
+To measure the offsets, start by homing your printer and placing the well on the build plate. Use the printer's "move" function to raise the Z-axis high enough to insert a tip. As you move the axes, the printer will display the current position, which is the offset you need.
 
-For the Z offset just move the printhead until the tip touches the well, see picture:
+First, move the tip to the X and Y edges closest to the home position, ensuring it barely touches the edges. For instance, in the example image, the printhead was moved to 24.8mm for the Y-axis:
+![Offset Y](pictures/offset_y.png)
+To calculate the offset for X and Y, add the radius of the tip used. For example, if the tip diameter is 0.4mm, the offset for Y would be: offset_y = Y + d/2 = 24.8mm + 0.2mm = 25.0mm
+
+For the Z offset, move the printhead until the tip touches the well, as shown:
 ![Offset Z](pictures/offset_z.png)
-The Z value can directly be used as the offset. When using a different tip you have to adjust the Z offset again. It is possible to just measure the difference in length of the tips and adjust the offset accordingly.
+The Z value displayed can be used directly as the offset. If you change the tip, you'll need to adjust the Z offset by either remeasuring or calculating the difference in length between the tips and adjusting accordingly.
 
 ##### Calculating from coordinate system
 
-This approach can be used if the printers coordinate origin is marked on the buildplate. You can simply measure how far the well plate will be positioned from this origin in X and Y dimensions with a caliper gauge. The Z offset still has to be determined with the approach above, by using the printer.
+This approach can be used if the printer's coordinate origin is marked on the build plate. You can simply measure the distance between the well plate and the origin in the X and Y dimensions using a caliper gauge. However, the Z offset still needs to be determined using the method described above, by moving the printer until the tip touches the well.
+
+#### Prepare well file
+
+The program reads well dimensions from a file, which you will need to input manually based on your well. These specifications can typically be found in the product's technical documentation or you can measure them yourself. An example file for a four by six well plate is provided in the repository. It contains the following dimensions:
+
+~~~bash
+number_x: 6
+number_y: 4
+diameter: 15.5
+depth: 17.3
+distance_well: 3.5
+distance_x: 7.8
+distance_y: 6.0
+~~~
+
+The values for number_x and number_y represent the number of wells along the x and y axes, respectively. The remaining dimensions are displayed in the image below.
+![Well Dimensions]()
 
 ### Preparation of your PC
 
@@ -76,42 +94,43 @@ This will install the python package manager and the package svgpathtools which 
 
 ### Script usage
 
-After measuring all required offsets and preparing your pc you are ready to use the script. If your python is installed correctly you can just double click the GUI.py
+After measuring all the required offsets and preparing your PC, you’re ready to use the script. If Python is installed correctly, you can simply double-click ASAPR.py to run it.
 
-The GUI will look like this:
+The GUI will appear as shown below:
 ![GUI](https://private-user-images.githubusercontent.com/90255355/366448982-884d83a1-e6c6-4964-a91c-cf8c9fa59219.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDg5ODItODg0ZDgzYTEtZTZjNi00OTY0LWE5MWMtY2Y4YzlmYTU5MjE5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWUwNzNlMzBlMmVkYzcwYjk5MDI4ZjgzNGE3OTI1YWNmMGFkNjVlOTdhNDBmMTVkZGRiZTQwYjY1YjU5OWFkZDgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.1ysNOYLmC47thJHvhufNYyv85VS9Wzb4XWKl6xOu3sI)
 
 #### Enter offsets
 
-In the top left of the GUI you have to enter your measured offsets in mm. The tip offset determines the minimal distance between the center of the tip and the well wall. It HAS to be at least half of the tip diameter. For more robust scratching you might even increase it to 1-2 mm.
+In the top left of the GUI, you need to enter your measured offsets in millimeters. The tip offset specifies the minimum distance between the center of the tip and the well wall. This value MUST be at least half of the tip diameter. For more robust scratching, you might consider increasing this offset to 1-2 mm.
 
 #### Choose pattern
 
-Right next to the offsets you can choose between between the patterns: mesh (mutiple lines), circles and svg grapics.
+Next to the offsets you can choose between between three different patterns: mesh (mutiple lines), circles and svg grapics.
 ![Patterns](pictures/pattern.png)
 
 ##### Mesh
 
-The mesh pattern is defined through the number of lines and the distance between them. It is also possible to scratch just one line through the center of the well. If the box for "Repeat with 90° flip" is ticked, the mesh will be scratched again rotated by 90° to create a criss cross pattern.
+The mesh pattern is defined by the number of lines and the distance between them. You can also just choose to scratch a single line through the center of the well. If the "Repeat with 90° flip" box is checked, the mesh will be scratched again rotated by 90° to create a criss-cross pattern.
+
 ![Mesh](https://private-user-images.githubusercontent.com/90255355/366449025-db28b08b-c841-4aa9-a9e7-301c1939f099.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDkwMjUtZGIyOGIwOGItYzg0MS00YWE5LWE5ZTctMzAxYzE5MzlmMDk5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdmZGEyMGZiOWQ5NmRkNGViYTIwNzhiMjM4MmRmMjg4MjFlZWRjNGJjMGZhNGQxNmExYWE1MTc1OTU5ZWQ1ZmMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.22jz2PMN6PlEor-KjUMjWOgpyGrKaihQlsYNy3pJASQ)
 
 ##### Circles
 
-The circles pattern is defined through the number of circles, distance between the circles and diameter of the inner most circle.
+The circles pattern is defined by the number of circles, the distance between them, and the diameter of the innermost circle.
 ![Circles](https://private-user-images.githubusercontent.com/90255355/366449035-d2408d5e-7a97-44d5-8d3b-6d777415af6e.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDkwMzUtZDI0MDhkNWUtN2E5Ny00NGQ1LThkM2ItNmQ3Nzc0MTVhZjZlLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTUyMzM3YmJkMjNmMWEwZDJlZjBjNjVmMGQxMWNkODViZTZlMzIxMDViOGZjMjZjYTBiOTc0NzNhNzUwMmZjYjgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.X5-_aTXnyX0lhmHGSh6JUubN4PSH6Y6hFkoYLGVSXgs)
 
 ##### SVG
 
-To scratch a vector graphic you have to put the file in the same folder as the GUI.py and enter the name. The svg should only contain lines and curves as full area scratching is not supported yet. As the scratch will just follow the line like a trajectory, it is possible to create larger surfaces by putting lines close to one another. The svg will be scaled automatically to the maximun size inside the well. If you want it to be smaller you can adjust the scale parameter to values between 1 (maximun size) and zero (basically a point).
+To scratch a vector graphic, place the file in the same folder as ASAPR.py and enter its name. The SVG should contain only lines and curves, as full area scratching is not supported yet. The scratch will follow the lines like a trajectory, so you can create larger surfaces by placing lines close to each other. The SVG will be scaled automatically to the maximum size that fits within the well. If you want it to be smaller, you can adjust the scale parameter to values between 1 (maximum size) and 0 (essentially a point).
 ![SVG](https://private-user-images.githubusercontent.com/90255355/366449031-0ffc8c30-f217-4c1c-98f2-72a6498d6566.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjQ4NjcsIm5iZiI6MTcyNjA2NDU2NywicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDkwMzEtMGZmYzhjMzAtZjIxNy00YzFjLTk4ZjItNzJhNjQ5OGQ2NTY2LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDE0MjI0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTBmMDU1MmJiMWUyZDg4OTgyODIyOTRhYmMyNmIwMjM1M2ExNjM4NTg5MTk1NDIzNzFmNjM1N2M1MjJmODI0MDYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.wvKChsnhkhoRdtjMz2rJWERlHSqboqKIw1na7bqBJBI)
 
 #### Movement settings
 
-Next to the patterns you can enter the movement speed of the printhead during moving and scratching in mm/s. Be aware that there are limitations to these speeds in the printer settings, mainly noticeable for the z-speed. If you want to scratch your pattern multiple times you can increase the "Scratch Cycles" from 1 to how many you like. To use the autoleveling function of your printer it has to be enabled with a tickbox here.
+Next to the patterns, you can set the movement speed of the printhead during both movement and scratching, in mm/s. Note that there are limitations to these speeds in the printer settings, especially for the Z-axis speed. If you want to scratch your pattern multiple times, you can increase the "Scratch Cycles" value from 1 to however many cycles you desire. To enable the auto-leveling function of your printer, check the corresponding tickbox.
 
 #### Cleaning
 
-If you want to clean the tip before/after scratching a well plate, you can place one or more cleaning containers and specify their coordinates in a "clean.txt" file. An example of the file content is provided below. The cleaning will draw circles with "Number" amount of cirlces, "Depth" and "Radius" inside the cleaning container. The depth is relative to the specified "Z" coordinate. The "/" marks the end of the data for one container. You can add as many of these sections as you like.
+To clean the tip before or after scratching a well plate, you can set up one or more cleaning containers and specify their coordinates in a "clean.txt" file. The cleaning process involves moving the tip in a specified number of circles within each container. Below is an example of the file content format:
 
 ~~~bash
 X: 150
@@ -123,22 +142,26 @@ Number: 20
 /
 ~~~
 
-When the "Pause Before Clean" checkbox is ticked the tip will wait 1 cm over the specified XYZ coordinates. This makes it easy to position your cleaning container without exactly measuring the coordinates.
+In this file, each section describes a cleaning container, with Number specifying the amount of circles, Depth indicating how deep the circles will be relative to the specified Z coordinate, and Radius defining the size of the circles. The "/" marks the end of the data for one container, and you can add as many sections as needed in one file.
+
+When the "Pause Before Clean" checkbox is ticked, the tip will pause 1 cm above the specified XYZ coordinates. This allows you to position your cleaning container more easily without needing to measure the coordinates precisely.
 
 #### Load well setting
 
-On the right side of the GUI you have to provide the well data. As the wells are mostly standardized we are reading the well data from a *.txt file, as it is easy to share, modify and reuse. An example of such a file is included in the repository as "24well.txt".
+On the right side of the GUI, you'll need to provide the well data. Since wells are often standardized, the data is read from a *.txt file for ease of sharing, modification, and reuse. An example file named "24well.txt" is included in the repository.
 
 #### Select wells to scratch
 
-After loading the well file, the layout should be plotted in the central area of the GUI. By clicking a well it turns red and will be excluded from scratching. Dragging your clicked mouse and releasing it will also select/deselect all wells underneath. The well in the bottom left corner represents the well closest to the coordinate origin, wich is the home position of your printer. It is usually the bottom left corner of the printbed as well.
+After loading the well file, the layout will be plotted in the central area of the GUI. Clicking on a well will turn it red, indicating that it will be excluded from scratching. You can also click and drag your mouse to select or deselect multiple wells underneath. The well located in the bottom left corner represents the one closest to the coordinate origin, which is typically the home position of your printer and usually corresponds to the bottom left corner of the print bed.
 
 #### Generate G-Code
 
-The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter.
+The final step is to enter the name of your *.gcode file and generate the G-Code. BEFORE running it on the 3D printer, be sure to read the next chapter for important instructions.
 
 ### Running the G-Code
 
-Before running the G-Code on your machine be sure to have the bed leveled or correctly prepared for the autoleveling option. The guides and the well should be in place by now. Also remove the scratching tip, as the printer will home before scratching. Otherwise it would drive the tip into the print bed. After starting the print the "M00" G-Code command will stop the printer before scratching to insert the tip. Make sure your printer firmware supports this command! After inserting the tip just continue the print, usually by pressing the knob.
+Before running the G-Code on your machine, ensure that the bed is leveled or properly prepared for the auto-leveling option. The guides and well should be correctly positioned by now. Additionally, remove the scratching tip, as the printer will home before starting the scratching process; leaving the tip in place could cause it to be driven into the print bed.
 
-After scratching remove the tip again and end the print.
+Once you start the print, the "M0" G-Code command will pause the printer before scratching, allowing you to insert the tip. Verify that your printer firmware supports this command. After inserting the tip, continue the print, usually by pressing the knob.
+
+You can preview how your scratches will look by pasting your G-Code into a viewer. One option is ncviewer.com, though keep in mind that for larger X and Y coordinates, the depiction might be shifted. Despite this, the G-Code will still function correctly on your printer.
