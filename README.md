@@ -69,8 +69,8 @@ This approach can be used if the printer's coordinate origin is marked on the bu
 The program reads well dimensions from a file, which you will need to input manually based on your well. These specifications can typically be found in the product's technical documentation or you can measure them yourself. An example file for a four by six well plate is provided in the repository. It contains the following dimensions:
 
 ~~~bash
-number_x: 6
-number_y: 4
+number_x: 3
+number_y: 2
 diameter: 15.5
 depth: 17.3
 distance_well: 3.5
