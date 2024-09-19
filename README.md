@@ -36,11 +36,11 @@ If you want to use auto-leveling, you must first delete any old mesh, then creat
 
 The next step is to mount your positioning guide for the well on the build plate. It's important to ensure the sides of the guide or well align with the X and Y axes. A magnetic print bed is not recommended, as it may slip and lose its position. If you're working with wells of different sizes, it's recommended to use permanent position guides in the lowest XY corner and variable guides for the other sides (see the picture below).
 
-![Guides](https://private-user-images.githubusercontent.com/90255355/366444479-c9b48ecf-ef6a-4154-91b4-a6085f6e785b.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTIsIm5iZiI6MTcyNjA2MTQ1MiwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDQ0NzktYzliNDhlY2YtZWY2YS00MTU0LTkxYjQtYTYwODVmNmU3ODViLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1MlomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTUxMjcwZDYzMDkwY2NmYjFhM2VlOTViNjk1MGE0OWZiNjI0NzYwNTNkMTNlYTkzMzQ1Zjk5NDc4Y2ZiYjAxODAmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.w_yw0Ts_Tw3wBWX2hOzc8HQRbEjvpmOefd3-S50YJ5I)
+![Guides](docs/Guides.png)
 
 This setup allows you to determine the x_offset and y_offset only once. The offsets are shown in the picture below.
 
-![Offsets](https://private-user-images.githubusercontent.com/90255355/366444674-d6d47c4c-fe29-49a8-9c9d-e03ccb57e0a9.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDQ2NzQtZDZkNDdjNGMtZmUyOS00OWE4LTljOWQtZTAzY2NiNTdlMGE5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTU4Yjk3Yzk4MzhjNjMxNGI3NjYyMmZkOWU0YWRiMmU0NzZlMTI2NTdiMGZlN2RjM2VlNmE1YWUyYTAyZDRlMDcmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.uleY0lAAZIpg1pic4BeYjsM3lOS_p29jfc6rElTdRWU)
+![Offsets](docs/Offset.png)
 
 The positioning guide used in the preprint can also be found in this repository. It can be printed using the same printer that will be used for scratching.
 
@@ -53,11 +53,11 @@ There are two approaches to determining the offsets. The first method uses the p
 To measure the offsets, start by homing your printer and placing the well on the build plate. Use the printer's "move" function to raise the Z-axis high enough to insert a tip. As you move the axes, the printer will display the current position, which is the offset you need.
 
 First, move the tip to the X and Y edges closest to the home position, ensuring it barely touches the edges. For instance, in the example image, the printhead was moved to 24.8mm for the Y-axis:
-![Offset Y](pictures/offset_y.png)
+![Offset Y](docs/Offset_y.png)
 To calculate the offset for X and Y, add the radius of the tip used. For example, if the tip diameter is 0.4mm, the offset for Y would be: offset_y = Y + d/2 = 24.8mm + 0.2mm = 25.0mm
 
 For the Z offset, move the printhead until the tip touches the well, as shown:
-![Offset Z](pictures/offset_z.png)
+![Offset Z](docs/Offset_z.png)
 The Z value displayed can be used directly as the offset. If you change the tip, you'll need to adjust the Z offset by either remeasuring or calculating the difference in length between the tips and adjusting accordingly.
 
 ##### Calculating from coordinate system
@@ -97,7 +97,7 @@ This will install the python package manager and the package svgpathtools which 
 After measuring all the required offsets and preparing your PC, you’re ready to use the script. If Python is installed correctly, you can simply double-click ASAPR.py to run it.
 
 The GUI will appear as shown below:
-![GUI](https://private-user-images.githubusercontent.com/90255355/366448982-884d83a1-e6c6-4964-a91c-cf8c9fa59219.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDg5ODItODg0ZDgzYTEtZTZjNi00OTY0LWE5MWMtY2Y4YzlmYTU5MjE5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPWUwNzNlMzBlMmVkYzcwYjk5MDI4ZjgzNGE3OTI1YWNmMGFkNjVlOTdhNDBmMTVkZGRiZTQwYjY1YjU5OWFkZDgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.1ysNOYLmC47thJHvhufNYyv85VS9Wzb4XWKl6xOu3sI)
+![GUI](docs/GUI.png)
 
 #### Enter offsets
 
@@ -106,23 +106,23 @@ In the top left of the GUI, you need to enter your measured offsets in millimete
 #### Choose pattern
 
 Next to the offsets you can choose between between three different patterns: mesh (mutiple lines), circles and svg grapics.
-![Patterns](pictures/pattern.png)
+![Patterns](docs/)
 
 ##### Mesh
 
 The mesh pattern is defined by the number of lines and the distance between them. You can also just choose to scratch a single line through the center of the well. If the "Repeat with 90° flip" box is checked, the mesh will be scratched again rotated by 90° to create a criss-cross pattern.
 
-![Mesh](https://private-user-images.githubusercontent.com/90255355/366449025-db28b08b-c841-4aa9-a9e7-301c1939f099.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDkwMjUtZGIyOGIwOGItYzg0MS00YWE5LWE5ZTctMzAxYzE5MzlmMDk5LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTdmZGEyMGZiOWQ5NmRkNGViYTIwNzhiMjM4MmRmMjg4MjFlZWRjNGJjMGZhNGQxNmExYWE1MTc1OTU5ZWQ1ZmMmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.22jz2PMN6PlEor-KjUMjWOgpyGrKaihQlsYNy3pJASQ)
+![Mesh](docs/Mesh.png)
 
 ##### Circles
 
 The circles pattern is defined by the number of circles, the distance between them, and the diameter of the innermost circle.
-![Circles](https://private-user-images.githubusercontent.com/90255355/366449035-d2408d5e-7a97-44d5-8d3b-6d777415af6e.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjE3NTUsIm5iZiI6MTcyNjA2MTQ1NSwicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDkwMzUtZDI0MDhkNWUtN2E5Ny00NGQ1LThkM2ItNmQ3Nzc0MTVhZjZlLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDEzMzA1NVomWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTUyMzM3YmJkMjNmMWEwZDJlZjBjNjVmMGQxMWNkODViZTZlMzIxMDViOGZjMjZjYTBiOTc0NzNhNzUwMmZjYjgmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.X5-_aTXnyX0lhmHGSh6JUubN4PSH6Y6hFkoYLGVSXgs)
+![Circles](docs/Circles.png)
 
 ##### SVG
 
 To scratch a vector graphic, place the file in the same folder as ASAPR.py and enter its name. The SVG should contain only lines and curves, as full area scratching is not supported yet. The scratch will follow the lines like a trajectory, so you can create larger surfaces by placing lines close to each other. The SVG will be scaled automatically to the maximum size that fits within the well. If you want it to be smaller, you can adjust the scale parameter to values between 1 (maximum size) and 0 (essentially a point).
-![SVG](https://private-user-images.githubusercontent.com/90255355/366449031-0ffc8c30-f217-4c1c-98f2-72a6498d6566.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MjYwNjQ4NjcsIm5iZiI6MTcyNjA2NDU2NywicGF0aCI6Ii85MDI1NTM1NS8zNjY0NDkwMzEtMGZmYzhjMzAtZjIxNy00YzFjLTk4ZjItNzJhNjQ5OGQ2NTY2LnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA5MTElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwOTExVDE0MjI0N1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTBmMDU1MmJiMWUyZDg4OTgyODIyOTRhYmMyNmIwMjM1M2ExNjM4NTg5MTk1NDIzNzFmNjM1N2M1MjJmODI0MDYmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.wvKChsnhkhoRdtjMz2rJWERlHSqboqKIw1na7bqBJBI)
+![SVG](docs/SVG.png)
 
 #### Movement settings
 
