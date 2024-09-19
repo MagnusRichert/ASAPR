@@ -78,8 +78,8 @@ distance_x: 7.8
 distance_y: 6.0
 ~~~
 
-The values for number_x and number_y represent the number of wells along the x and y axes, respectively. The remaining dimensions are displayed in the image below.
-![Well Dimensions]()
+The values for number_x and number_y represent the number of wells along the x and y axes, respectively. Be aware that they depent on the orientation of your well. The remaining dimensions are displayed in the image below.
+![Well Dimensions](docs/Well.png)
 
 ### Preparation of your PC
 
@@ -106,7 +106,6 @@ In the top left of the GUI, you need to enter your measured offsets in millimete
 #### Choose pattern
 
 Next to the offsets you can choose between between three different patterns: mesh (mutiple lines), circles and svg grapics.
-![Patterns](docs/)
 
 ##### Mesh
 
@@ -117,11 +116,13 @@ The mesh pattern is defined by the number of lines and the distance between them
 ##### Circles
 
 The circles pattern is defined by the number of circles, the distance between them, and the diameter of the innermost circle.
+
 ![Circles](docs/Circles.png)
 
 ##### SVG
 
 To scratch a vector graphic, place the file in the same folder as ASAPR.py and enter its name. The SVG should contain only lines and curves, as full area scratching is not supported yet. The scratch will follow the lines like a trajectory, so you can create larger surfaces by placing lines close to each other. The SVG will be scaled automatically to the maximum size that fits within the well. If you want it to be smaller, you can adjust the scale parameter to values between 1 (maximum size) and 0 (essentially a point).
+
 ![SVG](docs/SVG.png)
 
 #### Movement settings
