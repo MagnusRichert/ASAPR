@@ -21,7 +21,7 @@ svg_file_default = "lab.svg"
 svg_scale_default = 1
 speed_move_default = 300
 speed_scratch_default = 300
-auto_leveling_default = False
+auto_leveling_default = True
 multi_scratch_default = 1
 clean_file_default = "clean.txt"
 clean_before_default = False
@@ -249,7 +249,7 @@ def calculate_scaled_xy(point, svg_center, svg_radius, svg_scale, tip_offset, ce
 # Create the root window
 root = tk.Tk()
 root.geometry("800x500")
-root.title("ASAPR - Advanced Scratch Assay Plotting Robot")
+root.title("Scratch me Baby!") # Haha 
 
 # Create the outer canvas
 outer_canvas = tk.Canvas(root, width=800, height=500)
@@ -465,7 +465,7 @@ def generate_cleaning_program():
                     clean_gcode += f"G0 Z{clean_data['Z']+10:.2f}\n"
                     clean_gcode += f"G0 X{clean_data['X']:.2f} Y{clean_data['Y']:.2f}\n"
                     if pause:
-                        clean_gcode += "M00 \"Position cleaning container and press to continue\"\n"
+                        clean_gcode += "M0 \"Position cleaning container and press to continue\"\n"
                     clean_gcode += f"G0 X{clean_data['X']-clean_data['Radius']:.2f} Z{clean_data['Z']-clean_data['Depth']:.2f}\n"
                     for N in range(int(clean_data['Number'])):
                         clean_gcode += f"G2 I{clean_data['Radius']:.2f} F{clean_speed:.0f}\n"                
@@ -550,7 +550,7 @@ def generate_gcode():
 
         #move nozzle to insert tip
         gcode.writelines(f"G0 Z{offset_z+30:.2f}\n")
-        gcode.writelines("M00 \"Please insert tip to start scratching :)\"\n\n")
+        gcode.writelines("M0 \"Please insert tip to start scratching :)\"\n\n")
 
         #clean if specified
         if clean_before_state.get():
