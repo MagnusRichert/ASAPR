@@ -5,6 +5,7 @@ import random
 import math
 from typing import List, Tuple
 import sys
+import os
 
 ### FUNCTIONS AND VARIABLES###
 # Default values
@@ -419,21 +420,23 @@ well_file_field.place(x=650, y=165)
 def load_well_data():
     """Loads the well data from a *.txt file"""
     try:
+        current_file_path = os.path.abspath(__file__)
+        current_directory = os.path.dirname(current_file_path)
+        well_file_path = current_directory + "\\" + well_file_field.get()
         well_data.clear()
         global well_grid
-        with open(well_file_field.get(), "r") as file:
+        with open(well_file_path, "r") as file:
             for line in file:
                 key, value = line.strip().split(": ")
                 well_data[key] = float(value)
         inner_canvas.delete("all")
         well_grid = CircleGrid(inner_canvas, int(well_data['number_x']), int(well_data['number_y']))
+        print("Loaded well file")
+        messagebox.showinfo("Load well file", "Loaded well file: " + well_file_field.get()+ "\n" + str(well_data))
     except FileNotFoundError:
         messagebox.showerror("File Not Found", "Well file not found: " + well_file_field.get())
     except Exception as e:
         messagebox.showerror("Error", "An error occurred: " + str(e))
-
-    print("Loaded well file")
-    messagebox.showinfo("Load well file", "Loaded well file: " + well_file_field.get()+ "\n" + str(well_data))        
     return well_data
 load_well_file_button = tk.Button(outer_canvas, text="Load Well File", command=load_well_data)
 load_well_file_button.place(x=650, y=190)
