@@ -745,18 +745,34 @@ def generate_gcode():
                                                 fill_error_thrown = True
                                             break
 
+                                        intersection_points = list()
+                                        y_coordinate = 0.0
+
                                         #loop through pairs of start and end points
-                                        for l in range(int(len(intersections)/2)):
+                                        for l in intersections:
                                             """
                                             Intersections Value Format
                                             (list[tuple[float, Curve, float]]): list of intersections, each
                                             in the format ((T1, seg1, t1), (T2, seg2, t2)), where
                                             self.point(T1) == seg1.point(t1) == seg2.point(t2) == other_curve.point(T2)
                                             """
-                                            start_point = helpline.point(intersections[2*l][1][0])
-                                            start_point = complex(start_point.real + tip_diameter * 0.2, start_point.imag) #use a offset to keep a clean edge 
-                                            end_point = helpline.point(intersections[2*l+1][1][0])  
-                                            end_point = complex(end_point.real - tip_diameter * 0.2, end_point.imag) #use a offset to keep a clean edge               
+                                            #get the point by using T2 and other_curve (helpline)
+                                            point = helpline.point(l[1][0])
+                                            intersection_points.append(point.real)
+                                            #Y Coordinate should always be the same 
+                                            #add other check later
+                                            y_coordinate = point.imag
+
+                                        #sort list of x coordinates of the intersections
+                                        intersection_points.sort()
+
+                                        for l in range(int(len(intersection_points)/2)):
+                                            x_start = intersection_points[2*l]
+                                             #use a offset to keep a clean edge 
+                                            start_point = complex(x_start + tip_diameter * 0.2, y_coordinate) 
+                                            x_end = intersection_points[2*l+1] 
+                                            #use a offset to keep a clean edge 
+                                            end_point = complex(x_end - tip_diameter * 0.2, y_coordinate)               
                                             line = Line(start_point, end_point)
                                             svg_fill_path.append(line)
                                             #write GCode
@@ -765,6 +781,7 @@ def generate_gcode():
                                             gcode.writelines(f"G0 Z{depth:.2f}\n")
                                             gcode.write(f"G0 F{speed_scratch:.0f}\n")
                                             gcode.writelines(f"G0 X{end_point.real:.2f} Y{end_point.imag:.2f}\n")
+
 
                                 else:
                                     #y side is longer so we will work with vertical lines
@@ -808,20 +825,37 @@ def generate_gcode():
                                                 fill_error_thrown = True
                                             break
 
+                                        intersection_points = list()
+                                        x_coordinate = 0.0
+
                                         #loop through pairs of start and end points
-                                        for l in range(int(len(intersections)/2)):
+                                        for l in intersections:
                                             """
                                             Intersections Value Format
                                             (list[tuple[float, Curve, float]]): list of intersections, each
                                             in the format ((T1, seg1, t1), (T2, seg2, t2)), where
                                             self.point(T1) == seg1.point(t1) == seg2.point(t2) == other_curve.point(T2)
                                             """
-                                            start_point = helpline.point(intersections[2*l][1][0])
-                                            start_point = complex(start_point.real, start_point.imag - tip_diameter * 0.2) #use a offset to keep a clean edge 
-                                            end_point = helpline.point(intersections[2*l+1][1][0])  
-                                            end_point = complex(end_point.real, end_point.imag + tip_diameter * 0.2) #use a offset to keep a clean edge               
+                                            #get the point by using T2 and other_curve (helpline)
+                                            point = helpline.point(l[1][0])
+                                            intersection_points.append(point.imag)
+                                            #X Coordinate should always be the same 
+                                            #add other check later
+                                            x_coordinate = point.real
+
+                                        #sort list of x coordinates of the intersections
+                                        intersection_points.sort()
+
+                                        for l in range(int(len(intersection_points)/2)):
+                                            y_start = intersection_points[2*l]
+                                             #use a offset to keep a clean edge 
+                                            start_point = complex(x_coordinate, y_start + tip_diameter * 0.2) 
+                                            y_end = intersection_points[2*l+1] 
+                                            #use a offset to keep a clean edge 
+                                            end_point = complex(x_coordinate, y_end - tip_diameter * 0.2)              
                                             line = Line(start_point, end_point)
                                             svg_fill_path.append(line)
+                                            #write GCode
                                             gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
                                             gcode.writelines(f"G0 X{start_point.real:.2f} Y{start_point.imag:.2f}\n")
                                             gcode.writelines(f"G0 Z{depth:.2f}\n")
