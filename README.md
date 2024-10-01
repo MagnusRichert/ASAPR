@@ -121,7 +121,7 @@ The circles pattern is defined by the number of circles, the distance between th
 
 ##### SVG
 
-To scratch a vector graphic, place the file in the same folder as ASAPR.py and enter its name. The SVG should contain only lines and curves, which can be fileld. For this you can specify the overlapping area between the fill lines from 0 to 1 (0 to 100%). The scratch will follow the lines like a trajectory, so you can create larger surfaces by placing lines close to each other. The SVG will be scaled automatically to the maximum size that fits within the well. If you want it to be smaller, you can adjust the scale parameter to values between 1 (maximum size) and 0 (essentially a point).
+To scratch a vector graphic, place the file in the same folder as ASAPR.py and enter its name. The SVG should contain only lines and curves, which can be filled. For this you can specify the overlapping area between the fill lines from 0 to 1 (0 to 100%). Currently only the fill property of the style attribute is supported, so not all SVG Files will work. Best practice is to generate a new basic SVG File with inkscape and not to use complex forms or properties. The scratch will follow the lines like a trajectory, so you can create larger surfaces by placing lines close to each other. The SVG will be scaled automatically to the maximum size that fits within the well. If you want it to be smaller, you can adjust the scale parameter to values between 1 (maximum size) and 0 (essentially a point).
 
 ![SVG](docs/SVG.png)
 
