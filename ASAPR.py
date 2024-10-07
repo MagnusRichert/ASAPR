@@ -683,13 +683,13 @@ def generate_gcode():
                                 fill_property = (svg_attributes[path_index].get('fill') != 'none')
                             #show error message if not shown already
                             elif not property_error_thrown:
-                                messagebox.showwarning("Generate gcode", f"No supported fill property found for one or more paths. Proceeding without fill.")
+                                messagebox.showwarning("Generate gcode", f"No supported fill property found for one or more paths. Proceeding without fill for those paths.")
                                 property_error_thrown = True
 
                             if fill_property:
                                 #Check if Path is closed and continuous 
                                 #(for some reason this works not with svg_paths_only_lines, although they are continuous)
-                                if not svg_paths[path_index].iscontinuous():
+                                """if not svg_paths[path_index].iscontinuous():
                                     #make sure error appears only once
                                     if not path_error_thrown:
                                         messagebox.showerror("Generate gcode", f"One or more paths are not continuous and will not be filled.")
@@ -700,7 +700,7 @@ def generate_gcode():
                                         #make sure error appears only once
                                         messagebox.showerror("Generate gcode", f"One or more paths are not closed and will not be filled.")
                                         path_error_thrown = True
-                                    continue
+                                    continue"""
                                 #from here on use the path of the scaled lines since that is the one that will be transformed to GCode
                                 #get the bounding box of the path
                                 bbox = svg_paths_scaled.bbox()
@@ -755,7 +755,7 @@ def generate_gcode():
                                         if number_intersections % 2 == 1:
                                             #make sure error appears only once
                                             if not fill_error_thrown:
-                                                messagebox.showerror("Generate gcode", f"Could not fill form.")
+                                                messagebox.showerror("Generate gcode", f"Could not fill form completly.")
                                                 fill_error_thrown = True
                                             break
 
