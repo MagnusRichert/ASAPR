@@ -673,203 +673,208 @@ def generate_gcode():
                             
                             #check if the Path has an Fill attribute other than none 
                             #regardless ot the type of fill attribute the shape will be filled the same way
-                            fill_property = 0
-                            try:
-                                fill_property = svg_attributes[path_index]['style'].find("fill:none")
-                            except KeyError:
-                                if not property_error_thrown:
-                                    messagebox.showwarning("Generate gcode", f"No supported fill property found for one or more paths. Proceeding without fill.")
-                                    property_error_thrown = True
-                            else:
-                                if fill_property == -1:
-                                    #Check if Path is closed and continuous 
-                                    #(for some reason this works not with svg_paths_only_lines, although they are continuous)
-                                    if not svg_paths[path_index].iscontinuous():
+                            fill_property = False
+                            # first possible dictionary entry with style (often used in inkscape)
+                            if svg_attributes[path_index].get('style') is not None:
+                                find_value = svg_attributes[path_index].get('style').find('fill:none')
+                                fill_property = (find_value == -1)
+                            #second case where fill property is associated with path
+                            elif svg_attributes[path_index].get('fill') is not None:
+                                fill_property = (svg_attributes[path_index].get('fill') != 'none')
+                            #show error message if not shown already
+                            elif not property_error_thrown:
+                                messagebox.showwarning("Generate gcode", f"No supported fill property found for one or more paths. Proceeding without fill.")
+                                property_error_thrown = True
+
+                            if fill_property:
+                                #Check if Path is closed and continuous 
+                                #(for some reason this works not with svg_paths_only_lines, although they are continuous)
+                                if not svg_paths[path_index].iscontinuous():
+                                    #make sure error appears only once
+                                    if not path_error_thrown:
+                                        messagebox.showerror("Generate gcode", f"One or more paths are not continuous and will not be filled.")
+                                        path_error_thrown = True
+                                    continue
+                                if not svg_paths[path_index].isclosed():
+                                    if not path_error_thrown:
                                         #make sure error appears only once
-                                        if not path_error_thrown:
-                                            messagebox.showerror("Generate gcode", f"One or more paths are not continuous and will not be filled.")
-                                            path_error_thrown = True
+                                        messagebox.showerror("Generate gcode", f"One or more paths are not closed and will not be filled.")
+                                        path_error_thrown = True
+                                    continue
+                                #from here on use the path of the scaled lines since that is the one that will be transformed to GCode
+                                #get the bounding box of the path
+                                bbox = svg_paths_scaled.bbox()
+                                xmin = bbox[0]
+                                xmax = bbox[1]
+                                ymin = bbox[2]
+                                ymax = bbox[3]
+
+                                #calculate the needed distance between two lines for the overlap of the tip
+                                tip_diameter = float(tip_diameter_field.get())
+                                overlap = float(svg_overlap_field.get())
+                                #the line distance is equal to the tip diameter for 0% overlap and equal to half the tip diameter for 100% overlap
+                                line_distance = tip_diameter - overlap * tip_diameter * 0.5
+                                #variable for the fill path
+                                svg_fill_path = Path()
+                                #get the main orientation of the path (x or y side bigger)
+                                if (xmax - xmin) > (ymax - ymin):
+                                    #x side is longer so we will work with horizontal lines
+
+                                    #check if the space is big enough to be filled
+                                    if (ymax - ymin) <= line_distance:
                                         continue
-                                    if not svg_paths[path_index].isclosed():
-                                        if not path_error_thrown:
+
+                                    #calculate the numer of lines needed to fill the area (the overlap can get bigger)
+                                    num_lines = int(np.ceil((ymax - ymin))/ line_distance) + 1 #+1 since we want the start and end values included
+                                    
+                                    #create an array with evenly spaced x coordinates that have a distance of line_distance or smaller
+                                    #note that the limits are included for equal spacing
+                                    y_coordinates = np.linspace(ymin, ymax, num_lines)
+
+                                    #run through all coordinates except the start end end since they are already part of the path
+                                    for current_coordinate in y_coordinates[1:-1]:
+                                        #create horizontal line that starts and ends outside the limits
+                                        helpline = Line(complex(xmin-1, current_coordinate),complex(xmax+1, current_coordinate))
+                                        #get the intersections with the path to fill
+                                        intersections = svg_paths_scaled.intersect(helpline)
+                                        number_intersections = len(intersections)
+                                        #case with uneven number of intersections (somewhere hitting a point)
+                                        if number_intersections % 2 == 1:
+                                            #try shifting the helpline to avoid the point
+                                            helpline = Line(complex(xmin-1, current_coordinate + line_distance*0.05),complex(xmax+1, current_coordinate + line_distance*0.05))
+                                            intersections = svg_paths_scaled.intersect(helpline)
+                                            number_intersections = len(intersections)
+
+                                        #case with uneven number (again) of intersections (somewhere hitting a point)
+                                        if number_intersections % 2 == 1:
+                                            #try shifting the helpline to avoid the point
+                                            helpline = Line(complex(xmin-1, current_coordinate - line_distance*0.05),complex(xmax+1, current_coordinate - line_distance*0.05))
+                                            intersections = svg_paths_scaled.intersect(helpline)                                        
+                                            number_intersections = len(intersections)
+                                        #third time throw error, implement better handling later   
+                                        if number_intersections % 2 == 1:
                                             #make sure error appears only once
-                                            messagebox.showerror("Generate gcode", f"One or more paths are not closed and will not be filled.")
-                                            path_error_thrown = True
+                                            if not fill_error_thrown:
+                                                messagebox.showerror("Generate gcode", f"Could not fill form.")
+                                                fill_error_thrown = True
+                                            break
+
+                                        intersection_points = list()
+                                        y_coordinate = 0.0
+
+                                        #loop through pairs of start and end points
+                                        for l in intersections:
+                                            """
+                                            Intersections Value Format
+                                            (list[tuple[float, Curve, float]]): list of intersections, each
+                                            in the format ((T1, seg1, t1), (T2, seg2, t2)), where
+                                            self.point(T1) == seg1.point(t1) == seg2.point(t2) == other_curve.point(T2)
+                                            """
+                                            #get the point by using T2 and other_curve (helpline)
+                                            point = helpline.point(l[1][0])
+                                            intersection_points.append(point.real)
+                                            #Y Coordinate should always be the same 
+                                            #add other check later
+                                            y_coordinate = point.imag
+
+                                        #sort list of x coordinates of the intersections
+                                        intersection_points.sort()
+
+                                        for l in range(int(len(intersection_points)/2)):
+                                            x_start = intersection_points[2*l]
+                                            #use a offset to keep a clean edge 
+                                            start_point = complex(x_start + tip_diameter * 0.2, y_coordinate) 
+                                            x_end = intersection_points[2*l+1] 
+                                            #use a offset to keep a clean edge 
+                                            end_point = complex(x_end - tip_diameter * 0.2, y_coordinate)               
+                                            line = Line(start_point, end_point)
+                                            svg_fill_path.append(line)
+                                            #write GCode
+                                            gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
+                                            gcode.writelines(f"G0 X{start_point.real:.2f} Y{start_point.imag:.2f}\n")
+                                            gcode.writelines(f"G0 Z{depth:.2f}\n")
+                                            gcode.write(f"G0 F{speed_scratch:.0f}\n")
+                                            gcode.writelines(f"G0 X{end_point.real:.2f} Y{end_point.imag:.2f}\n")
+
+
+                                else:
+                                    #y side is longer so we will work with vertical lines
+
+                                    #check if the space is big enough to be filled
+                                    if (xmax - xmin) <= line_distance:
                                         continue
-                                    #from here on use the path of the scaled lines since that is the one that will be transformed to GCode
-                                    #get the bounding box of the path
-                                    bbox = svg_paths_scaled.bbox()
-                                    xmin = bbox[0]
-                                    xmax = bbox[1]
-                                    ymin = bbox[2]
-                                    ymax = bbox[3]
 
-                                    #calculate the needed distance between two lines for the overlap of the tip
-                                    tip_diameter = float(tip_diameter_field.get())
-                                    overlap = float(svg_overlap_field.get())
-                                    #the line distance is equal to the tip diameter for 0% overlap and equal to half the tip diameter for 100% overlap
-                                    line_distance = tip_diameter - overlap * tip_diameter * 0.5
-                                    #variable for the fill path
-                                    svg_fill_path = Path()
-                                    #get the main orientation of the path (x or y side bigger)
-                                    if (xmax - xmin) > (ymax - ymin):
-                                        #x side is longer so we will work with horizontal lines
+                                    #calculate the numer of lines needed to fill the area (the overlap can get bigger)
+                                    num_lines = int(np.ceil((xmax - xmin))/ line_distance) + 1 #+1 since we want the start and end values included
+                                    
+                                    #create an array with evenly spaced x coordinates that have a distance of line_distance or smaller
+                                    #note that the limits are included for equal spacing
+                                    x_coordinates = np.linspace(xmin, xmax, num_lines)
 
-                                        #check if the space is big enough to be filled
-                                        if (ymax - ymin) <= line_distance:
-                                            continue
-
-                                        #calculate the numer of lines needed to fill the area (the overlap can get bigger)
-                                        num_lines = int(np.ceil((ymax - ymin))/ line_distance) + 1 #+1 since we want the start and end values included
-                                        
-                                        #create an array with evenly spaced x coordinates that have a distance of line_distance or smaller
-                                        #note that the limits are included for equal spacing
-                                        y_coordinates = np.linspace(ymin, ymax, num_lines)
-
-                                        #run through all coordinates except the start end end since they are already part of the path
-                                        for current_coordinate in y_coordinates[1:-1]:
-                                            #create horizontal line that starts and ends outside the limits
-                                            helpline = Line(complex(xmin-1, current_coordinate),complex(xmax+1, current_coordinate))
-                                            #get the intersections with the path to fill
+                                    #run through all coordinates except the start end end since they are already part of the path
+                                    for current_coordinate in x_coordinates[1:-1]:
+                                        #create vertical line that starts and ends outside the limits
+                                        helpline = Line(complex(current_coordinate, ymax+1),complex(current_coordinate, ymin-1))
+                                        #get the intersections with the path to fill
+                                        intersections = svg_paths_scaled.intersect(helpline)
+                                        number_intersections = len(intersections)
+                                        #case with uneven number of intersections (somewhere hitting a point)
+                                        if number_intersections % 2 == 1:
+                                            #try shifting the helpline to avoid the point
+                                            helpline = Line(complex(current_coordinate + line_distance*0.05, ymax+1),complex(current_coordinate + line_distance*0.05, ymin-1))
                                             intersections = svg_paths_scaled.intersect(helpline)
                                             number_intersections = len(intersections)
-                                            #case with uneven number of intersections (somewhere hitting a point)
-                                            if number_intersections % 2 == 1:
-                                                #try shifting the helpline to avoid the point
-                                                helpline = Line(complex(xmin-1, current_coordinate + line_distance*0.05),complex(xmax+1, current_coordinate + line_distance*0.05))
-                                                intersections = svg_paths_scaled.intersect(helpline)
-                                                number_intersections = len(intersections)
 
-                                            #case with uneven number (again) of intersections (somewhere hitting a point)
-                                            if number_intersections % 2 == 1:
-                                                #try shifting the helpline to avoid the point
-                                                helpline = Line(complex(xmin-1, current_coordinate - line_distance*0.05),complex(xmax+1, current_coordinate - line_distance*0.05))
-                                                intersections = svg_paths_scaled.intersect(helpline)                                        
-                                                number_intersections = len(intersections)
-                                            #third time throw error, implement better handling later   
-                                            if number_intersections % 2 == 1:
-                                                #make sure error appears only once
-                                                if not fill_error_thrown:
-                                                    messagebox.showerror("Generate gcode", f"Could not fill form.")
-                                                    fill_error_thrown = True
-                                                break
-
-                                            intersection_points = list()
-                                            y_coordinate = 0.0
-
-                                            #loop through pairs of start and end points
-                                            for l in intersections:
-                                                """
-                                                Intersections Value Format
-                                                (list[tuple[float, Curve, float]]): list of intersections, each
-                                                in the format ((T1, seg1, t1), (T2, seg2, t2)), where
-                                                self.point(T1) == seg1.point(t1) == seg2.point(t2) == other_curve.point(T2)
-                                                """
-                                                #get the point by using T2 and other_curve (helpline)
-                                                point = helpline.point(l[1][0])
-                                                intersection_points.append(point.real)
-                                                #Y Coordinate should always be the same 
-                                                #add other check later
-                                                y_coordinate = point.imag
-
-                                            #sort list of x coordinates of the intersections
-                                            intersection_points.sort()
-
-                                            for l in range(int(len(intersection_points)/2)):
-                                                x_start = intersection_points[2*l]
-                                                #use a offset to keep a clean edge 
-                                                start_point = complex(x_start + tip_diameter * 0.2, y_coordinate) 
-                                                x_end = intersection_points[2*l+1] 
-                                                #use a offset to keep a clean edge 
-                                                end_point = complex(x_end - tip_diameter * 0.2, y_coordinate)               
-                                                line = Line(start_point, end_point)
-                                                svg_fill_path.append(line)
-                                                #write GCode
-                                                gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
-                                                gcode.writelines(f"G0 X{start_point.real:.2f} Y{start_point.imag:.2f}\n")
-                                                gcode.writelines(f"G0 Z{depth:.2f}\n")
-                                                gcode.write(f"G0 F{speed_scratch:.0f}\n")
-                                                gcode.writelines(f"G0 X{end_point.real:.2f} Y{end_point.imag:.2f}\n")
-
-
-                                    else:
-                                        #y side is longer so we will work with vertical lines
-
-                                        #check if the space is big enough to be filled
-                                        if (xmax - xmin) <= line_distance:
-                                            continue
-
-                                        #calculate the numer of lines needed to fill the area (the overlap can get bigger)
-                                        num_lines = int(np.ceil((xmax - xmin))/ line_distance) + 1 #+1 since we want the start and end values included
-                                        
-                                        #create an array with evenly spaced x coordinates that have a distance of line_distance or smaller
-                                        #note that the limits are included for equal spacing
-                                        x_coordinates = np.linspace(xmin, xmax, num_lines)
-
-                                        #run through all coordinates except the start end end since they are already part of the path
-                                        for current_coordinate in x_coordinates[1:-1]:
-                                            #create vertical line that starts and ends outside the limits
-                                            helpline = Line(complex(current_coordinate, ymax+1),complex(current_coordinate, ymin-1))
-                                            #get the intersections with the path to fill
-                                            intersections = svg_paths_scaled.intersect(helpline)
+                                        #case with uneven number (again) of intersections (somewhere hitting a point)
+                                        if number_intersections % 2 == 1:
+                                            #try shifting the helpline to avoid the point
+                                            helpline = Line(complex(current_coordinate - line_distance*0.05, ymax+1),complex(current_coordinate - line_distance*0.05, ymin-1))
+                                            intersections = svg_paths_scaled.intersect(helpline)                                        
                                             number_intersections = len(intersections)
-                                            #case with uneven number of intersections (somewhere hitting a point)
-                                            if number_intersections % 2 == 1:
-                                                #try shifting the helpline to avoid the point
-                                                helpline = Line(complex(current_coordinate + line_distance*0.05, ymax+1),complex(current_coordinate + line_distance*0.05, ymin-1))
-                                                intersections = svg_paths_scaled.intersect(helpline)
-                                                number_intersections = len(intersections)
+                                        #third time throw error, implement better handling later   
+                                        if number_intersections % 2 == 1:
+                                            #make sure error appears only once
+                                            if not fill_error_thrown:
+                                                messagebox.showerror("Generate gcode", f"Could not fill form.")
+                                                fill_error_thrown = True
+                                            break
 
-                                            #case with uneven number (again) of intersections (somewhere hitting a point)
-                                            if number_intersections % 2 == 1:
-                                                #try shifting the helpline to avoid the point
-                                                helpline = Line(complex(current_coordinate - line_distance*0.05, ymax+1),complex(current_coordinate - line_distance*0.05, ymin-1))
-                                                intersections = svg_paths_scaled.intersect(helpline)                                        
-                                                number_intersections = len(intersections)
-                                            #third time throw error, implement better handling later   
-                                            if number_intersections % 2 == 1:
-                                                #make sure error appears only once
-                                                if not fill_error_thrown:
-                                                    messagebox.showerror("Generate gcode", f"Could not fill form.")
-                                                    fill_error_thrown = True
-                                                break
+                                        intersection_points = list()
+                                        x_coordinate = 0.0
 
-                                            intersection_points = list()
-                                            x_coordinate = 0.0
+                                        #loop through pairs of start and end points
+                                        for l in intersections:
+                                            """
+                                            Intersections Value Format
+                                            (list[tuple[float, Curve, float]]): list of intersections, each
+                                            in the format ((T1, seg1, t1), (T2, seg2, t2)), where
+                                            self.point(T1) == seg1.point(t1) == seg2.point(t2) == other_curve.point(T2)
+                                            """
+                                            #get the point by using T2 and other_curve (helpline)
+                                            point = helpline.point(l[1][0])
+                                            intersection_points.append(point.imag)
+                                            #X Coordinate should always be the same 
+                                            #add other check later
+                                            x_coordinate = point.real
 
-                                            #loop through pairs of start and end points
-                                            for l in intersections:
-                                                """
-                                                Intersections Value Format
-                                                (list[tuple[float, Curve, float]]): list of intersections, each
-                                                in the format ((T1, seg1, t1), (T2, seg2, t2)), where
-                                                self.point(T1) == seg1.point(t1) == seg2.point(t2) == other_curve.point(T2)
-                                                """
-                                                #get the point by using T2 and other_curve (helpline)
-                                                point = helpline.point(l[1][0])
-                                                intersection_points.append(point.imag)
-                                                #X Coordinate should always be the same 
-                                                #add other check later
-                                                x_coordinate = point.real
+                                        #sort list of x coordinates of the intersections
+                                        intersection_points.sort()
 
-                                            #sort list of x coordinates of the intersections
-                                            intersection_points.sort()
-
-                                            for l in range(int(len(intersection_points)/2)):
-                                                y_start = intersection_points[2*l]
-                                                #use a offset to keep a clean edge 
-                                                start_point = complex(x_coordinate, y_start + tip_diameter * 0.2) 
-                                                y_end = intersection_points[2*l+1] 
-                                                #use a offset to keep a clean edge 
-                                                end_point = complex(x_coordinate, y_end - tip_diameter * 0.2)              
-                                                line = Line(start_point, end_point)
-                                                svg_fill_path.append(line)
-                                                #write GCode
-                                                gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
-                                                gcode.writelines(f"G0 X{start_point.real:.2f} Y{start_point.imag:.2f}\n")
-                                                gcode.writelines(f"G0 Z{depth:.2f}\n")
-                                                gcode.write(f"G0 F{speed_scratch:.0f}\n")
-                                                gcode.writelines(f"G0 X{end_point.real:.2f} Y{end_point.imag:.2f}\n")
+                                        for l in range(int(len(intersection_points)/2)):
+                                            y_start = intersection_points[2*l]
+                                            #use a offset to keep a clean edge 
+                                            start_point = complex(x_coordinate, y_start + tip_diameter * 0.2) 
+                                            y_end = intersection_points[2*l+1] 
+                                            #use a offset to keep a clean edge 
+                                            end_point = complex(x_coordinate, y_end - tip_diameter * 0.2)              
+                                            line = Line(start_point, end_point)
+                                            svg_fill_path.append(line)
+                                            #write GCode
+                                            gcode.writelines(f"G0 Z{move_height+depth:.2f} F{speed_move:.0f}\n")
+                                            gcode.writelines(f"G0 X{start_point.real:.2f} Y{start_point.imag:.2f}\n")
+                                            gcode.writelines(f"G0 Z{depth:.2f}\n")
+                                            gcode.write(f"G0 F{speed_scratch:.0f}\n")
+                                            gcode.writelines(f"G0 X{end_point.real:.2f} Y{end_point.imag:.2f}\n")
 
                 # This case should not happen tbh
                 else: 
