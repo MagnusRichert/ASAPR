@@ -37,18 +37,18 @@ When selecting the test probes for ASAPR there three main requirements to be ful
 You might also want to take a look at the force of the spring at the given compression point. We always looked for test probes with a spring force of 1.5N at the recommended working stroke provided in the datasheet. As the recommended working strokes are different for some test probes the spring force should be within the same order of magnitude. Furthermore you should take a look at the wobble of the test probe which describes the deflection of the tip from its ideal position due to the necessary play between the piston and the probe sleeve. To give you some idea of possible test probes, here are a few examples from the company INGUN Prüfmittelbau GmbH.
 
 test probes:
-GKS-050 201 050 A 1500 
-GKS-912 201 060 R 1504 (+KS-112)
-GKS-112 201 080 R 1504 (+KS-112)
-GKS-112 201 100 A 1504 (+KS-112)
-GKS-204 201 130 R 1510
+- GKS-050 201 050 A 1500 
+- GKS-912 201 060 R 1504 (+KS-112)
+- GKS-112 201 080 R 1504 (+KS-112)
+- GKS-112 201 100 A 1504 (+KS-112)
+- GKS-204 201 130 R 1510
 
 threaded test probes:
-GKS-075 201 064 A 1502 M 
-GKS-112 201 080 R 1502 M
-GKS-112 201 100 R 1502 M
-GKS-204 201 130 R 1510 M
-GKS-503 201 180 R 1502 M
+- GKS-075 201 064 A 1502 M 
+- GKS-112 201 080 R 1502 M
+- GKS-112 201 100 R 1502 M
+- GKS-204 201 130 R 1510 M
+- GKS-503 201 180 R 1502 M
 
 #### Level the printbed (Not needed with autoleveling)
 
