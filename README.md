@@ -22,7 +22,33 @@ This chapter covers all the essential steps to prepare the printer. If you don't
 
 #### Replace the nozzle
 
-The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips.
+The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips. As described in the preprint there are two different approaches used to mount the Probe to the Printer. The first approach was to use a drill chuck holding the spring-loaded test probe while being inserted into a 3D-printed mount, considering that most of the 3D-printers have a M6 thread to hold the nozzle this method was not very straightforward. So the second approach was to 3D print a M6 Adapter as a direct replacement to the nozzle. 
+
+![mounting methods](docs/mounting_methods.png)
+
+As you can see there are multiple ways of mounting the test probe to the Printer, where three of these were used in the preprint. The other methods are still in work and not verified yet but may offer a few advantages.
+When selecting the test probes for ASAPR there three main requirements to be fulfilled:
+
+  1. The total length of the test probe must be greater than the depth of the well
+     (in our case the length had to be at least 20mm excluding the part sitting in the Adapter)
+  2. The width of the test probe must be wider than the inner diameter of the pipette tip
+  3. The test probe should have a conical tip
+     
+You might also want to take a look at the force of the spring at the given compression point. We always looked for test probes with a spring force of 1.5N at the recommended working stroke provided in the datasheet. As the recommended working strokes are different for some test probes the spring force should be within the same order of magnitude. Furthermore you should take a look at the wobble of the test probe which describes the deflection of the tip from its ideal position due to the necessary play between the piston and the probe sleeve. To give you some idea of possible test probes, here are a few examples from the company INGUN Prüfmittelbau GmbH.
+
+test probes:
+GKS-050 201 050 A 1500 
+GKS-912 201 060 R 1504 (+KS-112)
+GKS-112 201 080 R 1504 (+KS-112)
+GKS-112 201 100 A 1504 (+KS-112)
+GKS-204 201 130 R 1510
+
+threaded test probes:
+GKS-075 201 064 A 1502 M 
+GKS-112 201 080 R 1502 M
+GKS-112 201 100 R 1502 M
+GKS-204 201 130 R 1510 M
+GKS-503 201 180 R 1502 M
 
 #### Level the printbed (Not needed with autoleveling)
 
