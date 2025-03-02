@@ -38,17 +38,17 @@ You might also want to take a look at the force of the spring at the given compr
 
 test probes:
 - GKS-050 201 050 A 1500 
-- GKS-912 201 060 R 1504 (+KS-112)
-- GKS-112 201 080 R 1504 (+KS-112)
-- GKS-112 201 100 A 1504 (+KS-112)
+- GKS-912 201 060 R 1504 +KS-112 (currently supported)
+- GKS-112 201 080 R 1504 +KS-112 (currently supported)
+- GKS-112 201 100 A 1504 +KS-112 (currently supported)
 - GKS-204 201 130 R 1510
 
 threaded test probes:
 - GKS-075 201 064 A 1502 M 
-- GKS-112 201 080 R 1502 M
-- GKS-112 201 100 R 1502 M
+- GKS-112 201 080 R 1502 M (currently supported)
+- GKS-112 201 100 R 1502 M (currently supported)
 - GKS-204 201 130 R 1510 M
-- GKS-503 201 180 R 1502 M
+- GKS-503 201 180 R 1502 M (currently supported)
 
 #### Level the printbed (Not needed with autoleveling)
 
