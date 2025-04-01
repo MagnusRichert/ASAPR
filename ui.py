@@ -1,23 +1,28 @@
 import tkinter as tk
 from tkinter import messagebox
-from svgpathtools import svg2paths, CubicBezier, QuadraticBezier, Arc, Line, Path
-import numpy as np
-import sys
+from typing import Dict, Tuple, List
 import os
-from .circlegrid import CircleGrid
+from .wells import Wells
 from .gcodegenerator import GCodeGenerator
 from .welzl import Welzl
 
-class Ui:
-    def __init__(self, root):
+#TODO Add File Seelction Dialogs
+#TODO Make prettier
+
+class Application:
+    def __init__(self):
         """
         Initialize the UI class with default values and create the UI elements.
         """
-        self.root = root
+        self.root = tk.Tk()
         self.root.geometry("800x500")
         self.root.title("Scratch me Baby!")  # Haha
 
         # Default values
+        #TODO move values into a config file
+        #TODO add a reset button
+        #TODO add a save button
+        #TODO add a load button
         self.offset_x_default = 33.95
         self.offset_y_default = -3.95
         self.offset_z_default = 54
@@ -41,9 +46,7 @@ class Ui:
         self.well_file_default = "24well.txt"
         self.gcode_name_default = "scratch.gcode"
 
-        # Advanced configuration parameters
-        self.well_data = {}
-        self.well_grid = None
+        # Advanced configuration parameters 
         self.move_height = 5  # height that the scratcher moves above the cells to travel between scratches
         self.clean_speed = 60
 
@@ -55,6 +58,7 @@ class Ui:
         self.inner_canvas_size = (550, 345)
         self.inner_canvas = tk.Canvas(self.outer_canvas, width=self.inner_canvas_size[0], height=self.inner_canvas_size[1], bg="white")
         self.inner_canvas.place(x=50, y=140)
+        self.wells = Wells(self.inner_canvas)
 
         # Create labels for the input fields
         self.create_labels()
@@ -92,7 +96,13 @@ class Ui:
         # Create a button to generate the gcode
         self.create_generate_gcode_button()
 
-    def create_labels(self):
+    def run(self) -> None:
+        """
+        Run the Tkinter main loop.
+        """
+        self.root.mainloop()
+
+    def create_labels(self) -> None:
         """
         Create labels for the input fields.
         """
@@ -107,7 +117,7 @@ class Ui:
         self.label_tip_offset.place(x=50, y=80)
         self.label_tip_diameter.place(x=50, y=105)
 
-    def create_offset_fields(self):
+    def create_offset_fields(self) -> None:
         """
         Create input fields for offset values.
         """
@@ -128,7 +138,7 @@ class Ui:
         self.tip_offset_field.insert(0, self.tip_offset_default)
         self.tip_diameter_field.insert(0, self.tip_diameter_default)
 
-    def create_pattern_dropdown(self):
+    def create_pattern_dropdown(self) -> None:
         """
         Create a dropdown menu for the pattern selection.
         """
@@ -140,7 +150,7 @@ class Ui:
         self.pattern_dropdown = tk.OptionMenu(self.outer_canvas, self.pattern_value, "Mesh", "Circles", "SVG")
         self.pattern_dropdown.place(x=200, y=30)
 
-    def create_pattern_fields(self):
+    def create_pattern_fields(self) -> None:
         """
         Create input fields for the pattern parameters.
         """
@@ -184,7 +194,7 @@ class Ui:
         self.svg_scale_field.insert(0, self.svg_scale_default)
         self.svg_overlap_field.insert(0, self.svg_overlap_default)
 
-    def create_speed_fields(self):
+    def create_speed_fields(self) -> None:
         """
         Create input fields for speed values.
         """
@@ -200,7 +210,7 @@ class Ui:
         self.speed_move_field.insert(0, self.speed_move_default)
         self.speed_scratch_field.insert(0, self.speed_scratch_default)
 
-    def create_multi_scratch_field(self):
+    def create_multi_scratch_field(self) -> None:
         """
         Create input field for scratching multiple times.
         """
@@ -210,7 +220,7 @@ class Ui:
         self.multi_scratch_field.place(x=550, y=55)
         self.multi_scratch_field.insert(0, self.multi_scratch_default)
 
-    def create_auto_leveling_checkbox(self):
+    def create_auto_leveling_checkbox(self) -> None:
         """
         Create a bool checkbox for auto leveling.
         """
@@ -219,7 +229,7 @@ class Ui:
         self.auto_leveling_checkbox = tk.Checkbutton(self.outer_canvas, text="Auto Leveling", var=self.auto_leveling_state)
         self.auto_leveling_checkbox.place(x=470, y=80)
 
-    def create_well_file_field(self):
+    def create_well_file_field(self) -> None:
         """
         Create input field for well file path.
         """
@@ -231,7 +241,13 @@ class Ui:
         self.load_well_file_button = tk.Button(self.outer_canvas, text="Load Well File", command=self.load_well_data)
         self.load_well_file_button.place(x=650, y=190)
 
-    def create_gcode_name_field(self):
+    def load_well_data(self) -> None:
+        current_file_path = os.path.abspath(__file__)
+        current_directory = os.path.dirname(current_file_path)
+        well_file_path = os.sep.join([current_directory, self.well_file_field.get()])
+        self.wells.load_well_data(well_file_path)
+
+    def create_gcode_name_field(self) -> None:
         """
         Create input field for gcode name.
         """
@@ -241,7 +257,7 @@ class Ui:
         self.gcode_name_field.insert(0, self.gcode_name_default)  # default value
         self.gcode_name_field.place(x=650, y=240)
 
-    def create_clean_file_field(self):
+    def create_clean_file_field(self) -> None:
         """
         Create input field for cleaning file.
         """
@@ -251,7 +267,7 @@ class Ui:
         self.clean_file_field.insert(0, self.clean_file_default)
         self.clean_file_field.place(x=650, y=35)
 
-    def create_cleaning_options(self):
+    def create_cleaning_options(self) -> None:
         """
         Create bool checkboxes for cleaning options.
         """
@@ -270,7 +286,7 @@ class Ui:
         self.pause_before_clean_checkbox = tk.Checkbutton(self.outer_canvas, text="Pause Before Clean", var=self.pause_before_clean_state)
         self.pause_before_clean_checkbox.place(x=650, y=110)
 
-    def create_generate_gcode_button(self):
+    def create_generate_gcode_button(self) -> None:
         """
         Create a button to generate the gcode.
         """
@@ -294,7 +310,7 @@ class Ui:
         except ValueError:
             return False
 
-    def update_labels(self, *args):
+    def update_labels(self, *args) -> None:
         """
         Update labels based on the selected pattern.
         """
@@ -331,38 +347,86 @@ class Ui:
             self.svg_scale_field.place(x=380, y=30)  # Show the input field
             self.svg_overlap_field.place(x=380, y=55)  # Show the input field
 
-    def load_well_data(self):
+
+
+    def generate_gcode(self) -> None:
         """
-        Load the well data from a *.txt file.
+        Generate G-code based on the user inputs and save it to a file.
         """
-        try:
-            current_file_path = os.path.abspath(__file__)
-            current_directory = os.path.dirname(current_file_path)
-            well_file_path = os.sep.join([current_directory, self.well_file_field.get()])
-            self.well_data.clear()
-            with open(well_file_path, "r") as file:
-                for line in file:
-                    key, value = line.strip().split(": ")
-                    self.well_data[key] = float(value)
-            self.inner_canvas.delete("all")
-            self.well_grid = CircleGrid(self.inner_canvas, int(self.well_data['number_x']), int(self.well_data['number_y']))
-            print("Loaded well file")
-            messagebox.showinfo("Load well file", "Loaded well file: " + self.well_file_field.get() + "\n" + str(self.well_data))
-        except FileNotFoundError:
-            messagebox.showerror("File Not Found", "Well file not found: " + self.well_file_field.get())
-        except Exception as e:
-            messagebox.showerror("Error", "An error occurred: " + str(e))
-        return self.well_data
-    
-    def generate_gcode(self):
-        gcode = GCodeGenerator()
-        gcode.filepath = self.gcode_name_field.get()
-        gcode.offset_x = float(self.offset_x_field.get())
-        gcode.offset_y = float(self.offset_y_field.get())
-        gcode.offset_z = float(self.offset_z_field.get())
-        gcode.tip_offset = float(self.tip_offset_field.get())
-        gcode.tip_diameter = float(self.tip_diameter_field.get())
-        gcode.speed_move = float(self.speed_move_field.get())
-        gcode.speed_scratch = float(self.speed_scratch_field.get())
-        
-    
+        # Check if well data is loaded
+        if not self.well_data:
+            messagebox.showerror("Generate G-code", "Please load well file first!")
+            return
+
+        # Get the G-code file name
+        gcode_name = self.gcode_name_field.get()
+        if not gcode_name:
+            messagebox.showerror("Generate G-code", "Please enter a G-code file name!")
+            return
+
+        # Get the pattern type
+        pattern = self.pattern_value.get()
+
+        # Get the offset values
+        offset_x = float(self.offset_x_field.get())
+        offset_y = float(self.offset_y_field.get())
+        offset_z = float(self.offset_z_field.get())
+
+        # Get the skipped wells (assuming you have a way to get this list)
+        skipped_wells = []  # Replace with actual logic to get skipped wells
+
+        # Initialize the GCodeGenerator
+        gcode_generator = GCodeGenerator()
+
+        # Open the G-code file for writing
+        with open(gcode_name, 'w') as gcode_file:
+            # Iterate through the wells
+            for number_y in range(int(self.well_data['number_y'])):
+                for number_x in range(int(self.well_data['number_x'])):
+                    well_number = int(number_y * self.well_data['number_x'] + number_x + 1)
+                    well_name = chr(64 + int(self.well_data["number_y"]) - number_y) + str(number_x + 1)
+                    if well_number in skipped_wells:
+                        print(f"Skipped well {well_number:.0f}, Name: {well_name}")
+                        continue
+
+                    # Calculate center points for the well
+                    center_x = self.well_data['distance_x'] + number_x * (self.well_data['diameter'] + self.well_data['distance_well']) + self.well_data['diameter'] / 2 + offset_x
+                    center_y = self.well_data['distance_y'] + number_y * (self.well_data['diameter'] + self.well_data['distance_well']) + self.well_data['diameter'] / 2 + offset_y
+                    depth = offset_z - self.well_data['depth']
+
+                    # Move above center of well and into it
+                    gcode_file.write(f";GCODE for well number {well_number}, Name: {well_name}\n")
+                    gcode_file.write(f"G0 X{center_x:.2f} Y{center_y:.2f} Z{offset_z + self.move_height:.2f}\n")
+                    gcode_file.write(f"G0 Z{depth + self.move_height:.2f}\n")
+
+                    # Generate G-code for the selected pattern
+                    if pattern == "Mesh":
+                        gcode_lines = gcode_generator.generate_gcode('mesh', {
+                            'center_x': center_x,
+                            'center_y': center_y,
+                            'depth': depth,
+                            'spacing': float(self.distance_field.get()),
+                            'feed_rate': float(self.speed_scratch_field.get())
+                        })
+                    elif pattern == "Circles":
+                        gcode_lines = gcode_generator.generate_gcode('circle', {
+                            'center_x': center_x,
+                            'center_y': center_y,
+                            'radius': float(self.inner_radius_field.get()),
+                            'feed_rate': float(self.speed_scratch_field.get())
+                        })
+                    elif pattern == "SVG":
+                        gcode_lines = gcode_generator.generate_gcode('svg', {
+                            'svg_path': self.svg_file_field.get(),
+                            'scale': float(self.svg_scale_field.get()),
+                            'feed_rate': float(self.speed_scratch_field.get())
+                        })
+                    else:
+                        messagebox.showerror("Generate G-code", f"Unknown pattern: {pattern}")
+                        return
+
+                    # Write the generated G-code lines to the file
+                    for line in gcode_lines:
+                        gcode_file.write(line + '\n')
+
+        messagebox.showinfo("Generate G-code", f"G-code generated and saved to {gcode_name}")   

@@ -4,14 +4,13 @@ from svgpathtools import svg2paths, CubicBezier, QuadraticBezier, Arc, Line, Pat
 import numpy as np
 import sys
 import os
-from plotables import Plotables
-from circlegrid import CircleGrid
+from wells import Wells
 from welzl import Welzl
 
 
-class Circles(Plotables):
+class Circles():
     def __init__(self):
-        super().__init__()
+        pass
 
     def generate_gcode(self, center_x, center_y, depth):
         gcode_name = self.gcode_name_field.get()

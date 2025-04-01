@@ -1,6 +1,14 @@
 import random
 import math
 from typing import List, Tuple
+#TODO Check docstrings
+#TODO add comments
+#TODO Make implmentation more clear e.g. better variable names
+#TODO Add tests
+#TODO Add types
+#TODO Add logging
+#TODO Add error handling
+#TODO Insert into SVG Class?
 
 class Welzl:
     """

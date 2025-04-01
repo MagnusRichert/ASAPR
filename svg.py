@@ -4,13 +4,12 @@ from svgpathtools import svg2paths, CubicBezier, QuadraticBezier, Arc, Line, Pat
 import numpy as np
 import sys
 import os
-from plotables import Plotables
-from circlegrid import CircleGrid
+from wells import Wells
 from welzl import Welzl
-
-class Svg(Plotables):
+#TODO check implementation of all functions
+class Svg():
     def __init__(self):
-        super.__init__()
+        pass
         self.resolution = 0.1  # line length to approximate non-line segments of paths
         self.path_accuracy = 0.01  # if start and endpoint of a line are closer than this, they are considered the same point
 

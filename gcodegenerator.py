@@ -4,10 +4,11 @@ from svgpathtools import svg2paths, CubicBezier, QuadraticBezier, Arc, Line, Pat
 import numpy as np
 import sys
 import os
-from plotables import Plotables
-from circlegrid import CircleGrid
+from wells import Wells
 from welzl import Welzl
-
+#TODO one functions generates GCODE based on list of lines and circles (maybe bezier curves)
+#TODO one function generates GCODE for each well (previous function plus well data)
+#TODO All GCODE related activities should be here and not in the other functions (then only one class needs to be modified for different output format)
 class GCodeGenerator:
     def __init__(self):
         self.filepath = "scratch.gcode"
@@ -22,38 +23,7 @@ class GCodeGenerator:
         self.speed_move = 300
         self.speed_scratch = 300
 
-    def generate_cleaning_program(self):
-        """
-        Load the cleaning data from a *.txt file and return gcode.
-        """
-        try:
-            clean_data = {}
-            clean_gcode = ";cleaning gcode\n"
-            container = 0
-            pause = self.pause_before_clean_state.get()
-            # Extract data from file and generate gcode
-            with open(self.clean_file_field.get(), "r") as file:
-                for line in file:
-                    if line[0] == "/":
-                        container += 1
-                        clean_gcode += f";cleaning container {container}\n"
-                        clean_gcode += f"G0 Z{clean_data['Z'] + 10:.2f}\n"
-                        clean_gcode += f"G0 X{clean_data['X']:.2f} Y{clean_data['Y']:.2f}\n"
-                        if pause:
-                            clean_gcode += "M0 \"Position cleaning container and press to continue\"\n"
-                        clean_gcode += f"G0 X{clean_data['X']-clean_data['Radius']:.2f} Z{clean_data['Z']-clean_data['Depth']:.2f}\n"
-                        for N in range(int(clean_data['Number'])):
-                            clean_gcode += f"G2 I{clean_data['Radius']:.2f} F{self.clean_speed:.0f}\n"                
-                        clean_data.clear()
-                    else:
-                        key, value = line.strip().split(": ")
-                        clean_data[key] = float(value)
-            return clean_gcode
-        
-        except FileNotFoundError:
-            messagebox.showerror("Clean Program Error", "Cleaning program file not found.")
-        except Exception as e:
-            messagebox.showerror("Clean Program Error", str(e) + "Please check your clean.txt file for correctnes.")
+    
             
     def generate_gcode(self):
         """
@@ -134,6 +104,133 @@ class GCodeGenerator:
         except Exception as e:
             print(f"Error while generating gcode: {str(e)}")
             messagebox.showerror("Generate gcode", f"Error while generating gcode: {str(e)}")
+
+    def generate_gcode_initial(self):
+        # Get variables from input fields
+        gcode_name = self.gcode_name_field.get()
+        offset_x = float(self.offset_x_field.get())
+        offset_y = float(self.offset_y_field.get())
+        offset_z = float(self.offset_z_field.get())
+        speed_move = float(self.speed_move_field.get())
+        auto_leveling = self.auto_leveling_state.get()
+         # Open gcode file
+        with open(f"{gcode_name}", 'w') as gcode:
+            # Add beginning gcode
+            gcode.writelines("G21\n")  # Set to mm
+            gcode.writelines("G28\n")  # Home printhead
+            gcode.writelines(f"G0 X{offset_x:.2f} Y{offset_y:.2f} Z{offset_z:.2f}\n")  # Move to offset location
+            gcode.writelines(f"F{speed_move:.0f}\n\n")  # Set movement speed
+            if auto_leveling:
+                gcode.writelines("M420 S1\n")
+
+            # Move nozzle to insert tip
+            gcode.writelines(f"G0 Z{offset_z + 30:.2f}\n")
+            gcode.writelines("M0 \"Please insert tip to start scratching :)\"\n\n")
+
+            # Clean if specified
+            if self.clean_before_state.get():
+                gcode.writelines(self.generate_cleaning_program())
+
+
+from typing import List, Tuple
+
+class GCodeGenerator:
+    def __init__(self):
+        self.gcode_lines: List[str] = []
+
+    def generate_gcode(self, pattern: str, parameters: dict) -> List[str]:
+        """
+        Generate G-code based on the specified pattern and parameters.
+
+        Args:
+            pattern (str): The pattern type (e.g., 'circle', 'mesh', 'svg').
+            parameters (dict): A dictionary of parameters required for the pattern.
+
+        Returns:
+            List[str]: A list of G-code lines.
+        """
+        self.gcode_lines = ["G21 ; Set units to millimeters", "G90 ; Absolute positioning"]
+
+        if pattern == 'circle':
+            self.generate_circle_gcode(parameters)
+        elif pattern == 'mesh':
+            self.generate_mesh_gcode(parameters)
+        elif pattern == 'svg':
+            self.generate_svg_gcode(parameters)
+        else:
+            raise ValueError(f"Unknown pattern: {pattern}")
+
+        self.gcode_lines.append("M2 ; End of program")
+        return self.gcode_lines
+
+    def generate_circle_gcode(self, parameters: dict) -> None:
+        """
+        Generate G-code for a circle pattern.
+
+        Args:
+            parameters (dict): A dictionary of parameters for the circle pattern.
+        """
+        center_x = parameters.get('center_x', 0)
+        center_y = parameters.get('center_y', 0)
+        radius = parameters.get('radius', 10)
+        feed_rate = parameters.get('feed_rate', 1000)
+
+        self.gcode_lines.append(f"G0 X{center_x} Y{center_y} ; Move to center")
+        self.gcode_lines.append(f"G2 I{radius} J0 F{feed_rate} ; Draw circle")
+
+    def generate_mesh_gcode(self, parameters: dict) -> None:
+        """
+        Generate G-code for a mesh pattern.
+
+        Args:
+            parameters (dict): A dictionary of parameters for the mesh pattern.
+        """
+        start_x = parameters.get('start_x', 0)
+        start_y = parameters.get('start_y', 0)
+        end_x = parameters.get('end_x', 100)
+        end_y = parameters.get('end_y', 100)
+        spacing = parameters.get('spacing', 10)
+        feed_rate = parameters.get('feed_rate', 1000)
+
+        for x in range(start_x, end_x + 1, spacing):
+            self.gcode_lines.append(f"G0 X{x} Y{start_y} ; Move to start of line")
+            self.gcode_lines.append(f"G1 Y{end_y} F{feed_rate} ; Draw vertical line")
+
+        for y in range(start_y, end_y + 1, spacing):
+            self.gcode_lines.append(f"G0 X{start_x} Y{y} ; Move to start of line")
+            self.gcode_lines.append(f"G1 X{end_x} F{feed_rate} ; Draw horizontal line")
+
+    def generate_svg_gcode(self, parameters: dict) -> None:
+        """
+        Generate G-code for an SVG pattern.
+
+        Args:
+            parameters (dict): A dictionary of parameters for the SVG pattern.
+        """
+        svg_path = parameters.get('svg_path', '')
+        scale = parameters.get('scale', 1.0)
+        feed_rate = parameters.get('feed_rate', 1000)
+
+        # Placeholder for SVG processing logic
+        # This would involve parsing the SVG file and converting it to G-code
+        self.gcode_lines.append(f"; SVG file: {svg_path}")
+        self.gcode_lines.append(f"; Scale: {scale}")
+        self.gcode_lines.append(f"; Feed rate: {feed_rate}")
+
+        # Example of adding G-code for SVG path (this would be more complex in reality)
+        self.gcode_lines.append("G0 X0 Y0 ; Move to start of SVG path")
+        self.gcode_lines.append("G1 X10 Y10 F1000 ; Example line from SVG path")
+
+    def save_gcode_to_file(self, filename: str) -> None:
+        """
+        Save the generated G-code to a file.
+
+        Args:
+            filename (str): The name of the file to save the G-code to.
+        """
+        with open(filename, 'w') as file:
+            for line in self.gcode_lines:
+                file.write(line + '\n')    
 
 
 
