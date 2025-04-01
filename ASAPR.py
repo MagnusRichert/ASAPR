@@ -211,11 +211,12 @@ def welzl(P: List[Point], R: List[Point] = []) -> Disk:
 def perform_welzl(svg_lines):
     """Perform Welzl algorithm on svg_data and return center and radius of disk"""
     points = []
-    for line in svg_lines:
-            start = line.start
-            end = line.end
-            points.append((start.real, start.imag))
-            points.append((end.real, end.imag))
+    for path in svg_lines:
+        for line in path:
+                start = line.start
+                end = line.end
+                points.append((start.real, start.imag))
+                points.append((end.real, end.imag))
     return welzl(points)
 # Functions for SVG to lines
 def sample_segment(seg, chord_length=0.1):
@@ -238,12 +239,14 @@ def approximate_svg_with_lines(svg_file, resolution=0.1):
     line_segments = []
 
     for path in paths:
+        path_segments = []
         for segment in path:
             if isinstance(segment, Line):
-                line_segments.append(segment)
+                path_segments.append(segment)
             elif isinstance(segment, (CubicBezier, QuadraticBezier, Arc)):
                 lines = sample_segment(segment, resolution)
-                line_segments.extend(lines)
+                path_segments.extend(lines)
+        line_segments.append(path_segments)
 
     return line_segments, paths, attributes
 
@@ -655,9 +658,12 @@ def generate_gcode():
                 elif pattern == "SVG":
                     for _ in range(multi_scratch):
                         previous_end = (-10**10, -10**10) # Set initial end outside of coordinate range
-                        for path_index in range(len(svg_paths)):
+
+                         # loop through all paths
+                        for path_index in range(len(svg_paths)):  
                             svg_paths_scaled = Path()
-                            for line in svg_paths[path_index]:
+                            # Scale the lines of that path
+                            for line in svg_lines[path_index]:
                                 start = calculate_scaled_xy(line.start, svg_center, svg_radius, svg_scale, tip_offset, center_x, center_y)
                                 end = calculate_scaled_xy(line.end, svg_center, svg_radius, svg_scale, tip_offset, center_x, center_y)
                                 #construct a new path with scaled and corrected coordinates
@@ -669,7 +675,7 @@ def generate_gcode():
                                     gcode.writelines(f"G0 Z{depth:.2f}\n")
                                     gcode.write(f"G0 F{speed_scratch:.0f}\n")
                                 gcode.writelines(f"G0 X{end[0]:.2f} Y{end[1]:.2f}\n")
-                                previous_end = end  
+                                previous_end = end # Set end of current path as start for next path                            
                             
                             #check if the Path has an Fill attribute other than none 
                             #regardless ot the type of fill attribute the shape will be filled the same way
