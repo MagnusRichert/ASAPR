@@ -92,7 +92,7 @@ This approach can be used if the printer's coordinate origin is marked on the bu
 
 ##### Fine tuning by test runs
 
-The easiest way to set the X- and Y-axis offsets very accurately is to use an empty cell culture plate and scratch a cross through it using a test probe without a pipette tip attached so that the well surface is actually damaged. To do this, select the “mesh” option in the script with a 90° rotation and a generous tip offset to avoid hitting the edges of the plate in case of doubt. You can then measure the localisation of the cross within the plate with a caliper and adjust the coordinates if necessary.Recommended is for example to measure all corners of a 24-well plate. Run again until it fits your needs.
+The easiest way to set the X- and Y-axis offsets very accurately is to use an empty cell culture plate and scratch a cross through it using a test probe without a pipette tip attached so that the well surface is actually damaged. To do this, select the “mesh” option in the script with a 90° rotation and a generous tip offset to avoid hitting the edges of the plate in case of doubt. The test probe should not be driven too deeply into the plate in order to avoid tilting the tip and possible bending. You can then measure the localisation of the cross within the plate with a caliper and adjust the coordinates if necessary. Recommended is for example to measure all corners of a 24-well plate. Run again until it fits your needs.
 ![Fine Tuning](docs/finetuning.png)
 
 #### Prepare well file
