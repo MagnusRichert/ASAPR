@@ -179,7 +179,7 @@ In this file, each section describes a cleaning container, with Number specifyin
 When the "Pause Before Clean" checkbox is ticked, the tip will pause 1 cm above the specified XYZ coordinates. This allows you to position your cleaning container more easily without needing to measure the coordinates precisely.
 
 ##### Desinfecting
-To disinfect the tip, it is sufficient to immerse it in 70% ethanol for at least 30 seconds and then allow it to air dry. It is also recommended to rinse the tip in ethanol after each scratching process to remove debris. During the test phase, several scratched corrugated sheets were incubated for at least one week and contamination was never observed. It is also possible to prepare several tips and autoclave them in advance, but it is not necessary to replace them after each use.
+To disinfect the tip, it is sufficient to immerse it in 70% ethanol for at least 30 seconds and then allow it to air dry. It is also recommended to rinse the tip in ethanol after each scratching process to remove debris. During the test phase, several scratched wells plates were incubated for at least one week and contamination was never observed. It is also possible to prepare several tips and autoclave them in advance, but it is not necessary to replace them after each use.
 
 #### Load well setting
 
