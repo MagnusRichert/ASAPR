@@ -208,3 +208,7 @@ Before running the G-Code on your machine, ensure that the bed is leveled or pro
 Once you start the print, the "M0" G-Code command will pause the printer before scratching, allowing you to insert the tip. Verify that your printer firmware supports this command. After inserting the tip, continue the print, usually by pressing the knob.
 
 You can preview how your scratches will look by pasting your G-Code into a viewer. One option is ncviewer.com, though keep in mind that for larger X and Y coordinates, the depiction might be shifted. Despite this, the G-Code will still function correctly on your printer.
+
+## Outlook
+
+A lot of ideas went into this project and even more were discarded. There is certainly room for improvement in every nook and cranny, so we would be delighted to receive any valuable input for the further perfection of this project. Be it software improvements or better materials such as a Teflon tip, etc. Your input is always highly appreciated!
