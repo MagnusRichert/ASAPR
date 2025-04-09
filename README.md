@@ -4,7 +4,7 @@ This repository contains the code to execute in vitro cell analysis via scratch 
 
 ## How to use this repository
 
-Here we will discuss how to use this repository for your scratch essay and what you need.
+Here we will discuss how to use this repository for your scratch assay and what you need.
 
 ### Bill of Materials
 
@@ -22,7 +22,7 @@ This chapter covers all the essential steps to prepare the printer. If you don't
 
 #### Replace the nozzle
 
-The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips. As described in the preprint there are two different approaches used to mount the Probe to the Printer. The first approach was to use a drill chuck holding the spring-loaded test probe while being inserted into a 3D-printed mount, considering that most of the 3D-printers have a M6 thread to hold the nozzle this method was not very straightforward. So the second approach was to 3D print a M6 Adapter as a direct replacement to the nozzle. 
+The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips. As described in the preprint there are two different approaches used to mount the probe to the printer. The first approach was to use a drill chuck holding the spring-loaded test probe while being inserted into a 3D-printed mount, considering that most of the 3D-printers have a M6 thread to hold the nozzle this method was not very straightforward. So the second approach was to 3D print a M6 Adapter as a direct replacement to the nozzle. 
 
 ![mounting methods](docs/mounting_methods.png)
 
@@ -89,6 +89,10 @@ The Z value displayed can be used directly as the offset. If you change the tip,
 ##### Calculating from coordinate system
 
 This approach can be used if the printer's coordinate origin is marked on the build plate. You can simply measure the distance between the well plate and the origin in the X and Y dimensions using a caliper gauge. However, the Z offset still needs to be determined using the method described above, by moving the printer until the tip touches the well.
+
+##### Fine tuning by test runs
+
+The easiest way to set the X- and Y-axis offsets very accurately is to use an empty cell culture plate and scratch a cross through it using a test probe without a pipette tip attached so that the background is actually damaged. To do this, select the “mesh” option in the script with a 90° rotation and a generous tip offset to avoid hitting the edges of the plate in case of doubt. You can then measure the localisation of the cross within the plate with a caliper and adjust the coordinates if necessary. Run again until it fits your needs.
 
 #### Prepare well file
 
