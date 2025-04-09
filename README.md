@@ -178,6 +178,9 @@ In this file, each section describes a cleaning container, with Number specifyin
 
 When the "Pause Before Clean" checkbox is ticked, the tip will pause 1 cm above the specified XYZ coordinates. This allows you to position your cleaning container more easily without needing to measure the coordinates precisely.
 
+##### Desinfecting
+To disinfect the tip, it is sufficient to immerse it in 70% ethanol for at least 30 seconds and then allow it to air dry. It is also recommended to rinse the tip in ethanol after each scratching process to remove debris. During the test phase, several scratched corrugated sheets were incubated for at least one week and contamination was never observed. It is also possible to prepare several tips and autoclave them in advance, but it is not necessary to replace them after each use.
+
 #### Load well setting
 
 On the right side of the GUI, you'll need to provide the well data. Since wells are often standardized, the data is read from a *.txt file for ease of sharing, modification, and reuse. An example file named "24well.txt" is included in the repository.
@@ -189,6 +192,14 @@ After loading the well file, the layout will be plotted in the central area of t
 #### Generate G-Code
 
 The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter for important instructions. In the future there might be the option to send the generated G-Code right from the GUI over W-Lan, until then you need to save the G-Code on a SD-Card and plug into the 3d-printer.
+
+##### Individual customisation of the G-Code
+
+Some printers may require individual adjustments, especially in the header section of the Gcode. For example, the Prusa MK3S+ requires an additional 'W' after the G28 command to suppress auto levelling, which is not possible in the setup due to the fixed plate holder. These adjustments can easily be made in the text file of the finished Gcode. An option to customise the header of the Gcode for each printer individually is planned.
+
+~~~bash
+G28 W
+~~~
 
 ### Running the G-Code
 
