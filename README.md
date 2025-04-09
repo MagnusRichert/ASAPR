@@ -203,7 +203,7 @@ G28 W
 
 ### Running the G-Code
 
-Before running the G-Code on your machine, ensure that the bed is leveled or properly prepared for the auto-leveling option. The guides and well should be correctly positioned by now. Additionally, remove the scratching tip, as the printer will home before starting the scratching process; leaving the tip in place could cause it to be driven into the print bed.
+Before running the G-Code on your machine, ensure that the bed is leveled or properly prepared for the auto-leveling option. The guides and well should be correctly positioned by now. Additionally, remove the scratching tip, as the printer will home before starting the scratching process; leaving the tip in place could cause it to be driven into the print bed. If the printer does not home the Z axis above the print bed, but at the end stops of the upper area, the tip can always be left in place.
 
 Once you start the print, the "M0" G-Code command will pause the printer before scratching, allowing you to insert the tip. Verify that your printer firmware supports this command. After inserting the tip, continue the print, usually by pressing the knob.
 
