@@ -67,4 +67,17 @@ print settings:
 
 ## cutting device
 
-to be done...
+The cutting device is used to trim pipettes to a suitable length and consists of six parts, three of which are 3D-printed. A standard cutter knife blade—commonly available at most hardware stores—is used for the actual cutting process. An M5 screw and nut are used to hold the assembly together. (See pictures below.)
+An adaptive layer height profile was used once again to achieve greater detail in the areas of the moulds that hold the pipettes. For the part of the print that snaps onto the other component, support structures were used during printing.
+
+![cutter](docs/cutter.png)
+
+![cutter_slicer](docs/cutter_slicer.png)
+
+print settings:
+- infill density: 20%
+- nozzle diameter: 0.2mm
+- layer height: 0.2mm
+- material: PLA
+
+![cutter_assembled](docs/cutter_assembled.png)
