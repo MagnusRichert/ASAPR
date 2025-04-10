@@ -9,7 +9,8 @@ In this section we want to go into detail on how to print and assemble the neede
 The frame is supposed to hold the well plate on the print bed while maintaining a fixed position consistently. The frame itself is attached with four clamps designed for glass print beds. For the frame you need in total four pieces, of which are two 3D-printed. Both of these parts are included in the file "frame".
 In general there are two things which have to be considered when printing the frame. Since the frame features some floating areas you want to enable some kind of support, preferably tree support for printing. Moreover it is preferred to add some kind of modifier in the area of the slider to increase the infill density since this section of the frame is under more mechanical stress.
 
-![frame_slicer](docs/frame_slicer.png)
+<img src="docs/frame_slicer.png" width="600" />
+
 
 As you can see tree support was used while achieving a higher infill density in the slider area. The frame itself was printed with an infill density of 15% while the area of the slider has an infill density of 70%. Every part was printed with a 0.4mm nozzle and a layer height of 0.2mm using white PLA on the BambuLab A1 mini.
 
@@ -42,7 +43,7 @@ The M6 adapter is needed to mount the spring loaded test probe to the printhead 
 This adapter is used with the non threaded test probes and is designed to be used with a receptacle. It could also be used without receptacle but you might have to play around a little bit with X-Y hole compensation in the slicer settings to get a good press fit.
 To increase first layer adhesion the M6 thread points upwards while printing. Once again you may have to adjust the hole compensation in the slicer to get a good fit of the receptacle. Note that the width of the M6 thread can also be adjusted in the slicer if the fit is too loose or too stiff. More information on this topic can be found [here](https://wiki.bambulab.com/en/software/bambu-studio/xy-hole-contour-compensation). Since the most complex shape in this print is the M6 thread you might also want to decrease the layer height for this section. While prototyping we used an adaptive layer height profile to avoid a further increase in total printing time. You can find more on the topic [here](https://wiki.bambulab.com/en/software/bambu-studio/adaptive-layer-height).
 
-![adapter_nonthreaded_slicer](docs/adapter_nonthreaded_slicer.png)
+<p align="center"> <img src="docs/adapter_nonthreaded_slicer.png" width="200" /> </p>
 
 print settings:
 - infill density: 40%
@@ -56,7 +57,7 @@ print settings:
 
 This adapter is used with the threaded test probes, mostly recognizable by the M in the name. In general the topics mentioned above have to be considered with this adapter too since they are very simillar. In our case the printed thread was a little bit too small, so we had to adjust the X-Y hole compensation which solved this issue.  One major difference is the nozzle used. Since the thread of the test probe is very small (in our case M1.6 and M2.5) we used a 0.2mm nozzle with a layer height of 0.04mm in the section of the thread. The initial layer height was 0.08mm to avoid first layer issues. 
 
-![adapter_threaded_slicer](docs/adapter_threaded_slicer.png)
+<p align="center"> <img src="docs/adapter_threaded_slicer.png" width="200" /> </p>
 
 print settings:
 - infill density: 40%
@@ -72,7 +73,7 @@ An adaptive layer height profile was used once again to achieve greater detail i
 
 ![cutter](docs/cutter.png)
 
-![cutter_slicer](docs/cutter_slicer.png)
+<p align="center"> <img src="docs/cutter_slicer.png" width="600" /> </p>
 
 print settings:
 - infill density: 20%
@@ -80,4 +81,4 @@ print settings:
 - layer height: 0.2mm
 - material: PLA
 
-![cutter_assembled](docs/cutter_assembled.png)
+<p align="center"> <img src="docs/cutter_assembled.png" width="400" /> </p>
