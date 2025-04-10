@@ -4,7 +4,7 @@ This repository contains the code to execute in vitro cell analysis via scratch 
 
 ## How to use this repository
 
-Here we will discuss how to use this repository for your scratch essay and what you need.
+Here we will discuss how to use this repository for your scratch assay and what you need.
 
 ### Bill of Materials
 
@@ -22,7 +22,7 @@ This chapter covers all the essential steps to prepare the printer. If you don't
 
 #### Replace the nozzle
 
-The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips. As described in the preprint there are two different approaches used to mount the Probe to the Printer. The first approach was to use a drill chuck holding the spring-loaded test probe while being inserted into a 3D-printed mount, considering that most of the 3D-printers have a M6 thread to hold the nozzle this method was not very straightforward. So the second approach was to 3D print a M6 Adapter as a direct replacement to the nozzle. 
+The first step is to remove the nozzle of the old printer with a 7mm wrench. Afterwards screw in the adapter with M6 thread that will be used to hold the tips. As described in the preprint there are two different approaches used to mount the probe to the printer. The first approach was to use a drill chuck holding the spring-loaded test probe while being inserted into a 3D-printed mount, considering that most of the 3D-printers have a M6 thread to hold the nozzle this method was not very straightforward. So the second approach was to 3D print a M6 Adapter as a direct replacement to the nozzle. 
 
 ![mounting methods](docs/mounting_methods.png)
 
@@ -38,17 +38,17 @@ You might also want to take a look at the force of the spring at the given compr
 
 test probes:
 - GKS-050 201 050 A 1500 
-- GKS-912 201 060 R 1504 (+KS-112)
-- GKS-112 201 080 R 1504 (+KS-112)
-- GKS-112 201 100 A 1504 (+KS-112)
+- GKS-912 201 060 R 1504 +KS-112 (currently supported)
+- GKS-112 201 080 R 1504 +KS-112 (currently supported)
+- GKS-112 201 100 A 1504 +KS-112 (currently supported)
 - GKS-204 201 130 R 1510
 
 threaded test probes:
 - GKS-075 201 064 A 1502 M 
-- GKS-112 201 080 R 1502 M
-- GKS-112 201 100 R 1502 M
+- GKS-112 201 080 R 1502 M (currently supported)
+- GKS-112 201 100 R 1502 M (currently supported)
 - GKS-204 201 130 R 1510 M
-- GKS-503 201 180 R 1502 M
+- GKS-503 201 180 R 1502 M (currently supported)
 
 #### Level the printbed (Not needed with autoleveling)
 
@@ -89,6 +89,11 @@ The Z value displayed can be used directly as the offset. If you change the tip,
 ##### Calculating from coordinate system
 
 This approach can be used if the printer's coordinate origin is marked on the build plate. You can simply measure the distance between the well plate and the origin in the X and Y dimensions using a caliper gauge. However, the Z offset still needs to be determined using the method described above, by moving the printer until the tip touches the well.
+
+##### Fine tuning by test runs
+
+The easiest way to set the X- and Y-axis offsets very accurately is to use an empty cell culture plate and scratch a cross through it using a test probe without a pipette tip attached so that the well surface is actually damaged. To do this, select the “mesh” option in the script with a 90° rotation and a generous tip offset to avoid hitting the edges of the plate in case of doubt. The test probe should not be driven too deeply into the plate in order to avoid tilting the tip and possible bending. You can then measure the localisation of the cross within the plate with a caliper and adjust the coordinates if necessary. Recommended is for example to measure all corners of a 24-well plate. Run again until it fits your needs.
+![Fine Tuning](docs/finetuning.png)
 
 #### Prepare well file
 
@@ -173,6 +178,9 @@ In this file, each section describes a cleaning container, with Number specifyin
 
 When the "Pause Before Clean" checkbox is ticked, the tip will pause 1 cm above the specified XYZ coordinates. This allows you to position your cleaning container more easily without needing to measure the coordinates precisely.
 
+##### Desinfecting
+To disinfect the tip, it is sufficient to immerse it in 70% ethanol for at least 30 seconds and then allow it to air dry. It is also recommended to rinse the tip in ethanol after each scratching process to remove debris. During the test phase, several scratched wells plates were incubated for at least one week and contamination was never observed. It is also possible to prepare several tips and autoclave them in advance, but it is not necessary to replace them after each use.
+
 #### Load well setting
 
 On the right side of the GUI, you'll need to provide the well data. Since wells are often standardized, the data is read from a *.txt file for ease of sharing, modification, and reuse. An example file named "24well.txt" is included in the repository.
@@ -185,10 +193,22 @@ After loading the well file, the layout will be plotted in the central area of t
 
 The final step is to enter the name of your *.gcode file and to generate the G-Code. BEFORE running it on the 3D-Printer be sure to read the next chapter for important instructions. In the future there might be the option to send the generated G-Code right from the GUI over W-Lan, until then you need to save the G-Code on a SD-Card and plug into the 3d-printer.
 
+##### Individual customisation of the G-Code
+
+Some printers may require individual adjustments, especially in the header section of the Gcode. For example, the Prusa MK3S+ requires an additional 'W' after the G28 command to suppress auto levelling, which is not possible in the setup due to the fixed plate holder. These adjustments can easily be made in the text file of the finished Gcode. An option to customise the header of the Gcode for each printer individually is planned.
+
+~~~bash
+G28 W
+~~~
+
 ### Running the G-Code
 
-Before running the G-Code on your machine, ensure that the bed is leveled or properly prepared for the auto-leveling option. The guides and well should be correctly positioned by now. Additionally, remove the scratching tip, as the printer will home before starting the scratching process; leaving the tip in place could cause it to be driven into the print bed.
+Before running the G-Code on your machine, ensure that the bed is leveled or properly prepared for the auto-leveling option. The guides and well should be correctly positioned by now. Additionally, remove the scratching tip, as the printer will home before starting the scratching process; leaving the tip in place could cause it to be driven into the print bed. If the printer does not home the Z axis above the print bed, but at the end stops of the upper area, the tip can always be left in place.
 
 Once you start the print, the "M0" G-Code command will pause the printer before scratching, allowing you to insert the tip. Verify that your printer firmware supports this command. After inserting the tip, continue the print, usually by pressing the knob.
 
 You can preview how your scratches will look by pasting your G-Code into a viewer. One option is ncviewer.com, though keep in mind that for larger X and Y coordinates, the depiction might be shifted. Despite this, the G-Code will still function correctly on your printer.
+
+## Outlook
+
+A lot of ideas went into this project and even more were discarded. There is certainly room for improvement in every nook and cranny, so we would be delighted to receive any valuable input for the further perfection of this project. Be it software improvements or better materials such as a Teflon tip, etc. Your input is always highly appreciated!
