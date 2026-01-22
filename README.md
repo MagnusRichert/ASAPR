@@ -1,6 +1,6 @@
 # ASAPR - Advanced Scratch Assay Plotting Robot
 
-This repository contains the code to execute in vitro cell analysis via scratch assays as done in the preprint "The use of 3D-printers as plotters opens up a new world in performing 2D migration analyses". We greatly appreciate any feedback, contributions, or other input and questions you may have!
+This repository contains the code to execute in vitro cell analysis via scratch assays as done in the paper ["Scratching in style: 3D printers as plotters for automated and complex wound-healing assays"](https://doi.org/10.1016/j.isci.2025.114230). We greatly appreciate any feedback, contributions, or other input and questions you may have!
 
 ## How to use this repository
 
